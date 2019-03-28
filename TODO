@@ -1,0 +1,9 @@
+## TODO list
+
+  - 初始化项目（Web Frmawork, ORM, Project Structure, Config, Log, Singnal Handler, Router)
+  - 模型ER（User, Organization[Group] Project, Membership[Role])
+  - SSO集成(参考registry代码)
+  - 和Jone相关API实现，联调
+  - 和Agent相关API的实现， 联调
+  - Agent上报Event处理，存储，分析统计(Prometheus)
+  - 代码库，代码分析相关
