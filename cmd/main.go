@@ -1,23 +1,28 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"os"
 
 	"github.com/urfave/cli"
 )
 
 func main() {
-
 	app := cli.NewApp()
 	app.Commands = []cli.Command{
-		WebCmd,
+		webCmd,
+		jobCmd,
 	}
+
 	app.Flags = []cli.Flag{
 		logLevelFlag,
 		logPathFlag,
+		envFlag,
 	}
 
-	app.Before(func() *cli.Context {
-	})
-
+	err := app.Run(os.Args)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }

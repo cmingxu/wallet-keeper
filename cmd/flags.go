@@ -20,6 +20,11 @@ var logLevelFlag cli.StringFlag = cli.StringFlag{
 
 var logPathFlag cli.StringFlag = cli.StringFlag{
 	Name:   "log-path",
-	Value:  "/var/log/jex/web.log",
 	EnvVar: "LOG_PATH",
+}
+
+var envFlag cli.StringFlag = cli.StringFlag{
+	Name:   "env",
+	Value:  "dev",
+	EnvVar: "ENV",
 }

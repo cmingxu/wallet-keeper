@@ -7,17 +7,11 @@ PKG_ALL = $(shell go list ${PKG}/...)
 DOCKER=$(shell which docker)
 BUILD_DIR=./bin
 
-all: binaries
+all: build
 	
-binaries: go-web go-job
-
-go-web:
-	${GOBUILD}  -o ${BUILD_DIR}/web_${VERSION} ./cmd/web.go ./cmd/flags.go
-	${CROSS_GOBUILD}  -o ${BUILD_DIR}/web_linux_${VERSION} ./cmd/web.go ./cmd/flags.go
-
-go-job:
-	${CROSS_GOBUILD} -o ${BUILD_DIR}/job ./cmd/job.go ./cmd/flags.go
-	${CROSS_GOBUILD}  -o ${BUILD_DIR}/job_linux_${VERSION} ./cmd/job.go ./cmd/flags.go
+build:
+	${GOBUILD}  -o ${BUILD_DIR}/jex-${VERSION} ./cmd/*.go
+	# ${CROSS_GOBUILD}  -o ${BUILD_DIR}/jex-linux-${VERSION} ./cmd/*.go
 
 install: binaries
 

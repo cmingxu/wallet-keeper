@@ -1,29 +1,35 @@
 package main
 
 import (
-	"log"
-	"os"
+	"strings"
 
 	"github.com/urfave/cli"
 )
 
-func main() {
-	app := cli.NewApp()
-	app.Name = "web"
-	app.Flags = []cli.Flag{
+var webCmd cli.Command = cli.Command{
+	Name:    "web",
+	Aliases: []string{"w"},
+	Usage:   "run jex web application",
+	Flags: []cli.Flag{
 		httpAddrFlag,
 		logLevelFlag,
 		logPathFlag,
-	}
+	},
+	Action: func(c *cli.Context) error {
+		var env string = strings.ToUpper(c.String("env"))
 
-	app.Usage = "jex backend web application"
-	app.Action = func(c *cli.Context) error {
+		// setup logger
+		loggerFormat := "json"
+		if env == "dev" {
+			loggerFormat = "text"
+		}
+		err := setupLogger(c.String("log-level"), c.String("log-path"), loggerFormat)
+		if err != nil {
+			return err
+		}
+
+		// start web application and enter main loop
+
 		return nil
-	}
-
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Hello World")
+	},
 }
