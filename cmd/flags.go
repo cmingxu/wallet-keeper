@@ -28,3 +28,9 @@ var btcAddr = cli.StringFlag{
 	Value:  "http://localhost:8585",
 	EnvVar: "BTC_ADDR",
 }
+
+var envFlag = cli.StringFlag{
+	Name:   "env",
+	Value:  "production",
+	EnvVar: "ENV",
+}

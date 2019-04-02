@@ -28,7 +28,5 @@ func setupLogger(logLevel string, logPath string, formatter string) error {
 		})
 	}
 
-	// report caller method name in log message
-	log.SetReportCaller(true)
 	return nil
 }
