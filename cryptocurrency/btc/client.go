@@ -13,8 +13,8 @@ func NewClient() (*btc.Client, error) {
 	// Connect to local bitcoin core RPC server using HTTP POST mode.
 	connCfg := &btc.ConnConfig{
 		Host:         "localhost:8332",
-		User:         "",
-		Pass:         "",
+		User:         "xcm",
+		Pass:         "foobar",
 		HTTPPostMode: true, // Bitcoin core only supports HTTP POST mode
 		DisableTLS:   true, // Bitcoin core does not provide TLS by default
 	}
@@ -34,10 +34,34 @@ func NewClient() (*btc.Client, error) {
 	log.Printf("Block count: %d", blockCount)
 
 	accounts, err := client.ListAccounts()
-	if err != nil {
-		log.Fatalf("error listing accounts: %v", err)
+	log.Println(len(accounts))
+	for a := range accounts {
+		log.Println(a)
 	}
-	log.Info(accounts)
 
+	hash, height, err := client.GetBestBlock()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(hash)
+	log.Println(height)
+
+	amount, err := client.GetBalance("")
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(amount)
+
+	blockCount, err = client.GetBlockCount()
+	if err != nil {
+		log.Error(err)
+	}
+	log.Printf("Block count: %d", blockCount)
+
+	v, err := client.Version()
+	if err != nil {
+		log.Error(err)
+	}
+	log.Printf("v: %+v", v)
 	return client, nil
 }

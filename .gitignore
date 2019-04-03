@@ -1,1 +1,3 @@
 /bin
+bitcoin.conf
+bitcoind-data/
