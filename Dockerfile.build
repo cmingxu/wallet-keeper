@@ -3,4 +3,5 @@ FROM golang:1.12.1-alpine3.9
 WORKDIR /go/src/app
 
 RUN apk add make
+RUN apk add git
 

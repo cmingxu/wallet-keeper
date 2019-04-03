@@ -23,7 +23,7 @@ var logPathFlag = cli.StringFlag{
 	EnvVar: "LOG_PATH",
 }
 
-var btcAddr = cli.StringFlag{
+var btcAddrFlag = cli.StringFlag{
 	Name:   "btc-addr",
 	Value:  "http://localhost:8585",
 	EnvVar: "BTC_ADDR",

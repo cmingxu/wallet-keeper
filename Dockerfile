@@ -1,8 +1,9 @@
-FROM alpine3.9
+FROM alpine:latest
 
-ADD ./bin/wallet-keeper /
+ARG BINARY
+ADD ./bin/${BINARY} /
 
 WORKDIR /
 
-CMD wallet-keeper
+CMD ${BINARY}
 

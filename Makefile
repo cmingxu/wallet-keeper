@@ -1,6 +1,6 @@
 VERSION=$(shell cat ./VERSION)
 PKG=github.com/cmingxu/wallet-keeper
-GOBUILD=CGO_ENABLED=0 go build -a -ldflags "-X main.Version=${VERSION}"
+GOBUILD=GO111MODULE=on CGO_ENABLED=0 go build -a -ldflags "-X main.Version=${VERSION}"
 CROSS_GOBUILD=CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -ldflags "-X main.Version=${VERSION}"
 CMDS = $(shell go list ${PKG}/cmd )
 PKG_ALL = $(shell go list ${PKG}/...)
@@ -10,7 +10,7 @@ BUILD_DIR=./bin
 all: build
 	
 build:
-	${GOBUILD}  -o ${BUILD_DIR}/wallet-keepr-${VERSION} ./cmd/*.go
+	${GOBUILD}  -o ${BUILD_DIR}/wallet-keeper-${VERSION} ./cmd/*.go
 	# ${CROSS_GOBUILD}  -o ${BUILD_DIR}/jex-linux-${VERSION} ./cmd/*.go
 
 install: binaries
