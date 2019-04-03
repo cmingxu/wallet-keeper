@@ -1,7 +1,10 @@
 package api
 
 import (
+	"github.com/cmingxu/wallet-keeper/cryptocurrency/btc"
+
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 type ApiServer struct {
@@ -21,6 +24,12 @@ func NewApiServer(addr string) (*ApiServer, error) {
 func (api *ApiServer) HttpListen() error {
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
+		cli, err := btc.NewClient()
+		if err != nil {
+			log.Error(err)
+		}
+		log.Println(cli)
+
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
