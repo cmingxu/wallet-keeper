@@ -23,10 +23,24 @@ var logPathFlag = cli.StringFlag{
 	EnvVar: "LOG_PATH",
 }
 
-var btcAddrFlag = cli.StringFlag{
-	Name:   "btc-addr",
-	Value:  "http://localhost:8585",
-	EnvVar: "BTC_ADDR",
+var btcRpcAddrFlag = cli.StringFlag{
+	Name:   "btc-rpc-addr",
+	Value:  "192.168.0.101:8332",
+	EnvVar: "BTC_RPCADDR",
+	Usage:  "[NOTICE] testnet and mainnet have different default port",
+}
+
+var btcRpcUserFlag = cli.StringFlag{
+	Name:   "btc-rpc-user",
+	Value:  "foo",
+	EnvVar: "BTC_RPCUSER",
+}
+
+var btcRpcPassFlag = cli.StringFlag{
+	Name:   "btc-rpc-pass",
+	Value:  "qDDZdeQ5vw9XXFeVnXT4PZ--tGN2xNjjR4nrtyszZx0=",
+	EnvVar: "BTC_PRCPASS",
+	Usage:  "password can be generate through scripts/rcpauth.py",
 }
 
 var envFlag = cli.StringFlag{

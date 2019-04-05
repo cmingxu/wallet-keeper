@@ -12,7 +12,9 @@ var gateCmd = cli.Command{
 	Aliases: []string{"r"},
 	Flags: []cli.Flag{
 		httpAddrFlag,
-		btcAddrFlag,
+		btcRpcAddrFlag,
+		btcRpcUserFlag,
+		btcRpcPassFlag,
 	},
 	Usage: "serve api gateway",
 	Action: func(c *cli.Context) error {
@@ -23,7 +25,13 @@ var gateCmd = cli.Command{
 			return nil
 		}
 
-		apiServer.InitBtcClient(c.String("btc-addr"))
+		apiServer.InitBtcClient(
+			c.String("btc-rpc-addr"), // host
+			c.String("btc-rpc-user"), // user
+			c.String("btc-rpc-pass"), // password
+		)
+
+		// start accepting http requests
 		return apiServer.HttpListen()
 	},
 }
