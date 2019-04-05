@@ -9,11 +9,14 @@ type Keeper interface {
 	// could not recover, suicide might be the best choice.
 	Ping() error
 
-	// Returns a valid coin address for both receive from other.
-	GetAddress() (string, error)
+	// Returns address under accont, use default account if
+	// not provided
+	GetAddress(account string) (string, error)
 
-	// Returns a valid coin address for both receive from other.
-	GetAddresses() (map[string]string, error)
+	// Return new address under account
+	GetNewAddress(account string) (string, error)
+
+	GetAddresses(account string) ([]string, error)
 
 	// List all accounts/labels together with how much satoshi remains.
 	ListAccounts() (map[string]float64, error)

@@ -20,11 +20,12 @@ var METHODS_SUPPORTED = map[string]string{
 	"/help":   "display this message",
 
 	// useful APIs here
-	"/getblockcount":            "return height of the blockchain",
-	"/getaddress":               "return a new address",
-	"/getaddresses":             "list all adddress grouped by accouts/labels",
-	"/getbalance":               "sum balances of all accounts",
-	"/getaddress_with_balances": "all addresses together with balances",
+	"/getblockcount": "return height of the blockchain",
+	"/getaddress":    "return address of specified account or default",
+	"/getnewaddress": "return a new address of specified account or default",
+	"/getbalance":    "sum balances of all accounts",
+	"/listaccounts":  "list accounts with amount, minconf is 6",
+	//"/getaddress_with_balances": "all addresses together with balances",
 }
 
 type ApiServer struct {
@@ -81,6 +82,10 @@ func (api *ApiServer) HttpListen() error {
 	})
 
 	r.GET("/getblockcount", api.GetBlockCount)
+	r.GET("/getaddress", api.GetAddress)
+	r.GET("/getaddresses", api.GetAddresses)
+	r.GET("/getnewaddress", api.GetNewAddress)
+	r.GET("/listaccounts", api.ListAccounts)
 
 	return r.Run(api.httpListenAddr)
 }

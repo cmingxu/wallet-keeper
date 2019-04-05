@@ -10,11 +10,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (api *ApiServer) GetBlockCount(c *gin.Context) {
+func (api *ApiServer) ListAccounts(c *gin.Context) {
 	value, _ := c.Get(KEEPER_KEY) // sure about the presence of this value
 	keeper := value.(keeper.Keeper)
 
-	height, err := keeper.GetBlockCount()
+	accounts, err := keeper.ListAccounts()
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -22,7 +22,7 @@ func (api *ApiServer) GetBlockCount(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"message": height,
+			"message": accounts,
 		})
 	}
 }

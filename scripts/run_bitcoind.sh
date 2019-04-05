@@ -24,4 +24,5 @@ docker run --env=BITCOIN_DATA=${BITCOIN_DATA} \
   -p 8333:8333 \
   -p 0.0.0.0:8332:8332 \
   -p 0.0.0.0:18332:18332 \
-  ${IMAGE_NAME} -conf=/bitcoin.conf -deprecatedrpc=accounts
+  ${IMAGE_NAME} -conf=/bitcoin.conf \
+  -deprecatedrpc=accounts
