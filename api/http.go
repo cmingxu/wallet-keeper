@@ -22,9 +22,9 @@ func NewApiServer(addr string) (*ApiServer, error) {
 }
 
 func (api *ApiServer) HttpListen() error {
+	cli, err := btc.NewClient()
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
-		cli, err := btc.NewClient()
 		if err != nil {
 			log.Error(err)
 		}

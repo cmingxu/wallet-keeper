@@ -12,9 +12,9 @@ type Client struct {
 func NewClient() (*btc.Client, error) {
 	// Connect to local bitcoin core RPC server using HTTP POST mode.
 	connCfg := &btc.ConnConfig{
-		Host:         "localhost:8332",
-		User:         "xcm",
-		Pass:         "foobar",
+		Host:         "192.168.0.101:8332",
+		User:         "foo",
+		Pass:         "qDDZdeQ5vw9XXFeVnXT4PZ--tGN2xNjjR4nrtyszZx0=",
 		HTTPPostMode: true, // Bitcoin core only supports HTTP POST mode
 		DisableTLS:   true, // Bitcoin core does not provide TLS by default
 	}
@@ -25,6 +25,15 @@ func NewClient() (*btc.Client, error) {
 		log.Error(err)
 	}
 	defer client.Shutdown()
+
+	err = client.Ping()
+	log.Println(err)
+
+	blockChainInfo, err := client.GetBlockChainInfo()
+	if err != nil {
+		log.Error(err)
+	}
+	log.Println(blockChainInfo)
 
 	// Get the current block count.
 	blockCount, err := client.GetBlockCount()
@@ -41,27 +50,40 @@ func NewClient() (*btc.Client, error) {
 
 	hash, height, err := client.GetBestBlock()
 	if err != nil {
-		log.Println(err)
+		log.Println("GetBestBlock", err)
 	}
 	log.Println(hash)
 	log.Println(height)
 
-	amount, err := client.GetBalance("")
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println(amount)
-
 	blockCount, err = client.GetBlockCount()
 	if err != nil {
-		log.Error(err)
+		log.Error("blocCount: ", err)
 	}
 	log.Printf("Block count: %d", blockCount)
 
 	v, err := client.Version()
 	if err != nil {
-		log.Error(err)
+		log.Error("Version :", err)
 	}
 	log.Printf("v: %+v", v)
+
+	hash, err = client.GetBlockHash(1)
+	if err != nil {
+		log.Error("GetBlockHash", err)
+	}
+
+	log.Println(hash)
+
+	verboseHeader, err := client.GetBlockHeaderVerbose(hash)
+	if err != nil {
+		log.Error("verboseHeader", err)
+	}
+	log.Println(verboseHeader)
+
+	rawResponse, err := client.RawRequest("getnetworkinfo", nil)
+	if err != nil {
+		log.Error("RawRequest", err)
+	}
+	log.Println(rawResponse)
 	return client, nil
 }
