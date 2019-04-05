@@ -49,6 +49,10 @@ func NewApiServer(addr string) (*ApiServer, error) {
 func (api *ApiServer) HttpListen() error {
 	r := gin.Default()
 
+	// with midlleware determine which currency is active
+	// within this very session, should be either `btc` or  `usdt`.
+	// if none of these present, abort this request and return caller
+	// with bad request instantly.
 	r.Use(func(c *gin.Context) {
 		coin_type := strings.ToLower(c.Request.Header.Get(COIN_TYPE_HEADER))
 		switch coin_type {
@@ -63,6 +67,14 @@ func (api *ApiServer) HttpListen() error {
 		}
 	})
 
+	// APIs related to wallet
+	r.GET("/getblockcount", api.GetBlockCount)
+	r.GET("/getaddress", api.GetAddress)
+	r.GET("/getaddresses", api.GetAddresses)
+	r.GET("/getnewaddress", api.GetNewAddress)
+	r.GET("/listaccounts", api.ListAccounts)
+
+	// misc API
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -80,12 +92,6 @@ func (api *ApiServer) HttpListen() error {
 			"methods": METHODS_SUPPORTED,
 		})
 	})
-
-	r.GET("/getblockcount", api.GetBlockCount)
-	r.GET("/getaddress", api.GetAddress)
-	r.GET("/getaddresses", api.GetAddresses)
-	r.GET("/getnewaddress", api.GetNewAddress)
-	r.GET("/listaccounts", api.ListAccounts)
 
 	return r.Run(api.httpListenAddr)
 }
