@@ -16,8 +16,13 @@ type Keeper interface {
 	// Return new address under account
 	GetNewAddress(account string) (string, error)
 
-	GetAddresses(account string) ([]string, error)
+	// Return addresses under certain account, default account if
+	// no account specicied
+	GetAddressesByAccount(account string) ([]string, error)
 
 	// List all accounts/labels together with how much satoshi remains.
 	ListAccounts() (map[string]float64, error)
+
+	// send bitcoin to address
+	SendToAddress(address string, amount float64) error
 }

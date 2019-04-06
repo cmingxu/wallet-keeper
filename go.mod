@@ -2,6 +2,7 @@ module github.com/cmingxu/wallet-keeper
 
 require (
 	github.com/btcsuite/btcd v0.0.0-20190315201642-aa6e0f35703c
+	github.com/btcsuite/btcutil v0.0.0-20190207003914-4c204d697803
 	github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/golang/protobuf v1.3.1 // indirect

@@ -25,6 +25,7 @@ var METHODS_SUPPORTED = map[string]string{
 	"/getnewaddress": "return a new address of specified account or default",
 	"/getbalance":    "sum balances of all accounts",
 	"/listaccounts":  "list accounts with amount, minconf is 6",
+	"/sendtoaddress": "send amount of satoshi to address",
 	//"/getaddress_with_balances": "all addresses together with balances",
 }
 
@@ -70,9 +71,10 @@ func (api *ApiServer) HttpListen() error {
 	// APIs related to wallet
 	r.GET("/getblockcount", api.GetBlockCount)
 	r.GET("/getaddress", api.GetAddress)
-	r.GET("/getaddresses", api.GetAddresses)
+	r.GET("/getaddressesbyaccount", api.GetAddressesByAccount)
 	r.GET("/getnewaddress", api.GetNewAddress)
 	r.GET("/listaccounts", api.ListAccounts)
+	r.GET("/sendtoaddress", api.SendToAddress)
 
 	// misc API
 	r.GET("/ping", func(c *gin.Context) {

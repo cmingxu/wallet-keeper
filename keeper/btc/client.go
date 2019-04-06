@@ -1,7 +1,9 @@
 package btc
 
 import (
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/rpcclient"
+	"github.com/btcsuite/btcutil"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -66,7 +68,7 @@ func (client *Client) GetNewAddress(account string) (string, error) {
 		account = DEFAULT_ACCOUNT
 	}
 
-	address, err := client.rpcClient.GetAccountAddress(DEFAULT_ACCOUNT)
+	address, err := client.rpcClient.GetNewAddress(DEFAULT_ACCOUNT)
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +76,7 @@ func (client *Client) GetNewAddress(account string) (string, error) {
 	return address.String(), nil
 }
 
-func (client *Client) GetAddresses(account string) ([]string, error) {
+func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
 	}
@@ -104,4 +106,37 @@ func (client *Client) ListAccounts() (map[string]float64, error) {
 	}
 
 	return accounts, nil
+}
+
+func (client *Client) SendToAddress(address string, amount float64) error {
+	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
+	if err != nil {
+		return err
+	}
+
+	btcAmount, err := convertToBtcAmount(amount)
+	if err != nil {
+		return err
+	}
+
+	hash, err := client.rpcClient.SendToAddressComment(decoded, btcAmount, "comment", "commentto")
+	if err != nil {
+		return err
+	}
+	log.Println(hash)
+
+	return nil
+}
+
+func decodeAddress(address string, cfg chaincfg.Params) (btcutil.Address, error) {
+	decodedAddress, err := btcutil.DecodeAddress(address, &cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return decodedAddress, nil
+}
+
+func convertToBtcAmount(amount float64) (btcutil.Amount, error) {
+	return btcutil.NewAmount(amount)
 }

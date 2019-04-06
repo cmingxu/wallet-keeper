@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/cmingxu/wallet-keeper/keeper"
+	"github.com/cmingxu/wallet-keeper/keeper/btc"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -14,7 +15,12 @@ func (api *ApiServer) GetNewAddress(c *gin.Context) {
 	value, _ := c.Get(KEEPER_KEY) // sure about the presence of this value
 	keeper := value.(keeper.Keeper)
 
-	address, err := keeper.GetNewAddress("")
+	account, found := c.GetQuery("account")
+	if !found {
+		account = btc.DEFAULT_ACCOUNT
+	}
+
+	address, err := keeper.GetNewAddress(account)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (api *ApiServer) GetAddresses(c *gin.Context) {
+func (api *ApiServer) GetAddressesByAccount(c *gin.Context) {
 	value, _ := c.Get(KEEPER_KEY) // sure about the presence of this value
 	keeper := value.(keeper.Keeper)
 
@@ -20,7 +20,7 @@ func (api *ApiServer) GetAddresses(c *gin.Context) {
 		account = btc.DEFAULT_ACCOUNT
 	}
 
-	addresses, err := keeper.GetAddresses(account)
+	addresses, err := keeper.GetAddressesByAccount(account)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{

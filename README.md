@@ -41,3 +41,37 @@ $ curl -sSL -H "CoinType:btc" localhost:8000/getblockcount |  jq .
   "message": "603443"
 }
 ```
+
+### getaddress
+```
+$ curl -sSL -H "CoinType:btc" localhost:8000/getaddresses?accounts=barfoox |  jq .
+{
+  "message": [
+    "2MwFt5ZbGfK2yqCWHb1hyGKkm8K6DUByPj8",
+    "2N3Mqnjq9KUnLqUNjRdgkqh1VY4DJBjPoie",
+    "2N4MbjrKuBD9KYFitz6nmSZFBJxdSWguC7Y",
+    "2NDuD1sWwsuZeVdBCv8pusjSQUCNTbJTR7x"
+  ]
+}
+```
+
+### getnewaddress
+```
+$ curl -sSL -H "CoinType:btc" localhost:8000/getnewaddress?accounts=barfoox |  jq .
+{
+  "message": "2MwTYicqDegSuR2MsTeRVFLwkhMYSZKHPiP"
+}
+```
+
+### listaccounts
+```
+$ curl -sSL -H "CoinType:btc" localhost:8000/listaccounts |  jq .
+{
+  "message": {
+    "barfoo": 0,
+    "barfoox": 0,
+    "duckduck": 0,
+    "foobar": 0
+  }
+}
+```
