@@ -27,6 +27,7 @@ var METHODS_SUPPORTED = map[string]string{
 	"/listaccounts":   "list accounts with amount, minconf is 6",
 	"/sendtoaddress":  "send amount of satoshi to address",
 	"/listunspentmin": "list all unspent transactions",
+	"/move":           "move from one account to another",
 	//"/getaddress_with_balances": "all addresses together with balances",
 }
 
@@ -77,6 +78,7 @@ func (api *ApiServer) HttpListen() error {
 	r.GET("/listaccounts", api.ListAccounts)
 	r.GET("/sendtoaddress", api.SendToAddress)
 	r.GET("/listunspentmin", api.ListUnspentMin)
+	r.GET("/move", api.Move)
 
 	// misc API
 	r.GET("/ping", func(c *gin.Context) {

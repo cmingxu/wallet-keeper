@@ -129,6 +129,15 @@ func (client *Client) SendToAddress(address string, amount float64) error {
 	return nil
 }
 
+func (client *Client) Move(from, to string, amount float64) (bool, error) {
+	btcAmount, err := convertToBtcAmount(amount)
+	if err != nil {
+		return false, err
+	}
+
+	return client.rpcClient.Move(from, to, btcAmount)
+}
+
 func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error) {
 	return client.rpcClient.ListUnspentMin(minConf)
 }

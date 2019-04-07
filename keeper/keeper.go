@@ -32,4 +32,7 @@ type Keeper interface {
 
 	// list all UXTO
 	ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error)
+
+	// Move from one account to another under same wallet
+	Move(from, to string, amount float64) (bool, error)
 }
