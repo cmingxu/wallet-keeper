@@ -20,12 +20,13 @@ var METHODS_SUPPORTED = map[string]string{
 	"/help":   "display this message",
 
 	// useful APIs here
-	"/getblockcount": "return height of the blockchain",
-	"/getaddress":    "return address of specified account or default",
-	"/getnewaddress": "return a new address of specified account or default",
-	"/getbalance":    "sum balances of all accounts",
-	"/listaccounts":  "list accounts with amount, minconf is 6",
-	"/sendtoaddress": "send amount of satoshi to address",
+	"/getblockcount":  "return height of the blockchain",
+	"/getaddress":     "return address of specified account or default",
+	"/getnewaddress":  "return a new address of specified account or default",
+	"/getbalance":     "sum balances of all accounts",
+	"/listaccounts":   "list accounts with amount, minconf is 6",
+	"/sendtoaddress":  "send amount of satoshi to address",
+	"/listunspentmin": "list all unspent transactions",
 	//"/getaddress_with_balances": "all addresses together with balances",
 }
 
@@ -75,6 +76,7 @@ func (api *ApiServer) HttpListen() error {
 	r.GET("/getnewaddress", api.GetNewAddress)
 	r.GET("/listaccounts", api.ListAccounts)
 	r.GET("/sendtoaddress", api.SendToAddress)
+	r.GET("/listunspentmin", api.ListUnspentMin)
 
 	// misc API
 	r.GET("/ping", func(c *gin.Context) {

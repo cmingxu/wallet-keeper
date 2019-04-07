@@ -75,3 +75,11 @@ $ curl -sSL -H "CoinType:btc" localhost:8000/listaccounts |  jq .
   }
 }
 ```
+
+### sendtoaddress
+```
+$ curl -sSL -H "CoinType:btc" 'localhost:8000/sendtoaddress?address=2N2VJhke2sWspswJKWTFjqfibRY1wfZPbEQ&amount=0.1' |  jq .
+{
+  "message": "-6: Insufficient funds"
+}
+```

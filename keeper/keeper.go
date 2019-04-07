@@ -1,5 +1,9 @@
 package keeper
 
+import (
+	"github.com/btcsuite/btcd/btcjson"
+)
+
 type Keeper interface {
 	GetBlockCount() (int64, error)
 
@@ -25,4 +29,7 @@ type Keeper interface {
 
 	// send bitcoin to address
 	SendToAddress(address string, amount float64) error
+
+	// list all UXTO
+	ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error)
 }

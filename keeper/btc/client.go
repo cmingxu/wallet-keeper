@@ -1,6 +1,7 @@
 package btc
 
 import (
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/btcsuite/btcutil"
@@ -123,9 +124,13 @@ func (client *Client) SendToAddress(address string, amount float64) error {
 	if err != nil {
 		return err
 	}
-	log.Println(hash)
+	log.Info("SendToAddressComment got hash", hash)
 
 	return nil
+}
+
+func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error) {
+	return client.rpcClient.ListUnspentMin(minConf)
 }
 
 func decodeAddress(address string, cfg chaincfg.Params) (btcutil.Address, error) {

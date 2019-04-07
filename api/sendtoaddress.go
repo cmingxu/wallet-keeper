@@ -32,6 +32,14 @@ func (api *ApiServer) SendToAddress(c *gin.Context) {
 		return
 	}
 
+	// simple validation
+	if amount <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "amount should at least greater than 0",
+		})
+		return
+	}
+
 	err = keeper.SendToAddress(address, amount)
 	if err != nil {
 		log.Error(err)
