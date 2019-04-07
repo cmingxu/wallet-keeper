@@ -9,3 +9,9 @@ https://godoc.org/github.com/btcsuite/btcd/rpcclient
 # ALL `accounts` related JSON RPC are depreciated, need update
 # to `labels`
 https://bitcointalk.org/index.php?topic=5043017.0
+
+# Multiple wallets
+https://bitcointechtalk.com/whats-new-in-bitcoin-core-v0-15-part-4-7c01c553783e
+
+# Very detailed explain what is account
+https://en.bitcoin.it/wiki/Help:Accounts_explained

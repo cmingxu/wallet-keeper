@@ -17,7 +17,7 @@ BITCOIN_DATA=/bitcoind-data
 docker rm -f ${CONTAINER_NAME} 2>&1 >/dev/null
 
 docker run --env=BITCOIN_DATA=${BITCOIN_DATA} \
-  -v $(pwd)/bitcoind-data:/bitcoind-data \
+  -v $(dirname "$(pwd)/..")/bitcoind-data:/bitcoind-data \
   -v $(pwd)/bitcoin.conf:/bitcoin.conf \
   --name=${CONTAINER_NAME} \
   ${DOCKER_ARGS} \
