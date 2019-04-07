@@ -95,9 +95,9 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 	return addrs, nil
 }
 
-func (client *Client) ListAccounts() (map[string]float64, error) {
+func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) {
 	accounts := make(map[string]float64)
-	accountsWithAmount, err := client.rpcClient.ListAccounts()
+	accountsWithAmount, err := client.rpcClient.ListAccountsMinConf(conf)
 	if err != nil {
 		return accounts, err
 	}
