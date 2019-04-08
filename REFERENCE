@@ -5,3 +5,8 @@ https://github.com/kylemanna/docker-bitcoind
 
 # golang rpc client api docs
 https://godoc.org/github.com/btcsuite/btcd/rpcclient
+
+
+
+#  bitcoind doc for developers
+https://bitcoin.org/en/developer-guide#detecting-forks
