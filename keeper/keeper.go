@@ -1,8 +1,22 @@
 package keeper
 
 import (
+	"errors"
+
 	"github.com/btcsuite/btcd/btcjson"
 )
+
+var ErrAccountNotFound = errors.New("error account not found")
+
+func IsNotFound(err error) bool {
+	return err.Error() == "error account not found"
+}
+
+type Account struct {
+	Account   string   `json:"account"`
+	Balance   float64  `json:"balance"`
+	Addresses []string `json:"addresses"`
+}
 
 //Keeper interface
 type Keeper interface {
@@ -13,6 +27,13 @@ type Keeper interface {
 	// runtime error. Error happend indicates fatal and
 	// could not recover, suicide might be the best choice.
 	Ping() error
+
+	// create a new account
+	CreateAccount(account string) (Account, error)
+
+	// Get account, together with balance and address
+	// return error if account not exist
+	GetAccountInfo(account string) (Account, error)
 
 	// Returns address under accont, use default account if
 	// not provided

@@ -1,6 +1,8 @@
 package btc
 
 import (
+	"github.com/cmingxu/wallet-keeper/keeper"
+
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/rpcclient"
@@ -62,6 +64,43 @@ func (client *Client) GetAddress(account string) (string, error) {
 	return address.String(), nil
 }
 
+func (client *Client) CreateAccount(account string) (keeper.Account, error) {
+	address, err := client.GetAddress(account)
+	if err != nil {
+		return keeper.Account{}, err
+	}
+
+	return keeper.Account{
+		Account:   account,
+		Balance:   0.0,
+		Addresses: []string{address},
+	}, nil
+}
+
+func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
+	var accountsMap map[string]float64
+	var err error
+	if accountsMap, err = client.ListAccountsMinConf(0); err != nil {
+		return keeper.Account{}, err
+	}
+
+	balance, found := accountsMap[account]
+	if !found {
+		return keeper.Account{}, keeper.ErrAccountNotFound
+	}
+
+	addresses, err := client.GetAddressesByAccount(account)
+	if err != nil {
+		return keeper.Account{}, err
+	}
+
+	return keeper.Account{
+		Account:   account,
+		Balance:   balance,
+		Addresses: addresses,
+	}, nil
+}
+
 // TODO
 // GetNewAddress does map to `getnewaddress` rpc call now
 // rpcclient doesn't have such golang wrapper func.
@@ -82,7 +121,6 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
 	}
-	log.Println(account)
 	addresses, err := client.rpcClient.GetAddressesByAccount(account)
 	if err != nil {
 		return []string{}, err
