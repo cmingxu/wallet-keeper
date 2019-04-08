@@ -43,6 +43,26 @@ var btcRpcPassFlag = cli.StringFlag{
 	Usage:  "password can be generate through scripts/rcpauth.py",
 }
 
+var usdtRpcAddrFlag = cli.StringFlag{
+	Name:   "usdt-rpc-addr",
+	Value:  "localhost:18332",
+	EnvVar: "USDT_RPCADDR",
+	Usage:  "[NOTICE] testnet and mainnet have different default port",
+}
+
+var usdtRpcUserFlag = cli.StringFlag{
+	Name:   "usdt-rpc-user",
+	Value:  "foo",
+	EnvVar: "USDT_RPCUSER",
+}
+
+var usdtRpcPassFlag = cli.StringFlag{
+	Name:   "usdt-rpc-pass",
+	Value:  "usdtpass",
+	EnvVar: "USDT_PRCPASS",
+	Usage:  "password can be generate through scripts/rcpauth.py",
+}
+
 var envFlag = cli.StringFlag{
 	Name:   "env",
 	Value:  "production",

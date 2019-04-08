@@ -15,6 +15,9 @@ var gateCmd = cli.Command{
 		btcRpcAddrFlag,
 		btcRpcUserFlag,
 		btcRpcPassFlag,
+		usdtRpcAddrFlag,
+		usdtRpcUserFlag,
+		usdtRpcPassFlag,
 	},
 	Usage: "serve api gateway",
 	Action: func(c *cli.Context) error {

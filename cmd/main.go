@@ -9,6 +9,7 @@ import (
 
 func main() {
 	app := cli.NewApp()
+	app.Name = "Universal BTC/USDT wallet gateway"
 	app.Commands = []cli.Command{
 		gateCmd,
 	}
