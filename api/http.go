@@ -20,15 +20,17 @@ var METHODS_SUPPORTED = map[string]string{
 	"/help":   "display this message",
 
 	// useful APIs here
-	"/getblockcount":  "return height of the blockchain",
 	"/getaddress":     "return address of specified account or default",
-	"/getnewaddress":  "return a new address of specified account or default",
 	"/getbalance":     "sum balances of all accounts",
 	"/listaccounts":   "list accounts with amount, minconf is 6",
-	"/sendtoaddress":  "Deprecicated: send amount of satoshi to address",
+	"/getaccountinfo": "return account with corresponding bablance and addresses",
+	"/createaccount":  "create account and return receive address, error if account exists",
 	"/sendfrom":       "send amount of satoshi from some account to targets address",
-	"/listunspentmin": "list all unspent transactions",
 	"/move":           "move from one account to another",
+	//"/getnewaddress":  "return a new address of specified account or default",
+	//"/getblockcount":  "return height of the blockchain",
+	//"/listunspentmin": "list all unspent transactions",
+	//"/sendtoaddress":  "Deprecicated: send amount of satoshi to address",
 	//"/getaddress_with_balances": "all addresses together with balances",
 }
 
@@ -76,6 +78,8 @@ func (api *ApiServer) HttpListen() error {
 	r.GET("/getaddress", api.GetAddress)
 	r.GET("/getaddressesbyaccount", api.GetAddressesByAccount)
 	r.GET("/getnewaddress", api.GetNewAddress)
+	r.GET("/createaccount", api.CreateAccount)
+	r.GET("/getaccountinfo", api.GetAccountInfo)
 	r.GET("/listaccounts", api.ListAccounts)
 	r.GET("/sendtoaddress", api.SendToAddress)
 	r.GET("/sendfrom", api.SendFrom)

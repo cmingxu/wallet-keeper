@@ -83,3 +83,47 @@ $ curl -sSL -H "CoinType:btc" 'localhost:8000/sendtoaddress?address=2N2VJhke2sWs
   "message": "-6: Insufficient funds"
 }
 ```
+
+### getaddressesbyaccount
+```
+$ curl -sSL -H "CoinType:btc" 'localhost:8000/getaddressesbyaccount?account=foobar' |  jq .
+{
+  "message": [
+    "2MziFYWKdptgkDn9esKhQnQXt86H6taGM3f",
+    "2MziSR87om6fZyknsTMF447Yftt5afQB9GN",
+    "2NBEYgwGWTiTaPvCKp64hDeP5xnwckdrYNK",
+    "2NGTBdRezf7TNtF3X1ptmWzVr4XWc8MHnnP"
+  ]
+}
+```
+
+### getaccountinfo
+```
+$ curl -sSL -H "CoinType:btc" 'localhost:8000/getaccountinfo?account=barfoo' |  jq .
+{
+  "message": {
+    "account": "barfoo",
+    "balance": 0.0015,
+    "addresses": [
+      "2Mtb1opq1JvzfdLdGRPFSWwbEmvRGBXYdos",
+      "2MxK75vSZLABDgqZRmUPMt6kfyabXZD81SJ",
+      "2N5ETGDkhFFZqKQWhcbfYMihv9rSorMQLP9",
+      "2ND1nUpT3in3HeMjssd7XkPa3j6nHXQgs1G"
+    ]
+  }
+}
+```
+
+### createaccount
+```
+$ curl -sSL -H "CoinType:btc" 'localhost:8000/createaccount?account=barfoo1' |  jq .
+{
+  "message": {
+    "account": "barfoo1",
+    "balance": 0,
+    "addresses": [
+      "2N7y28aMq3xfxEZBFDvfvVzQ6aZLXr7np64"
+    ]
+  }
+}
+```

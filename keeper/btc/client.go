@@ -56,7 +56,7 @@ func (client *Client) GetAddress(account string) (string, error) {
 		account = DEFAULT_ACCOUNT
 	}
 
-	address, err := client.rpcClient.GetAccountAddress(DEFAULT_ACCOUNT)
+	address, err := client.rpcClient.GetAccountAddress(account)
 	if err != nil {
 		return "", err
 	}
