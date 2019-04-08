@@ -4,6 +4,7 @@ import (
 	"github.com/btcsuite/btcd/btcjson"
 )
 
+//Keeper interface
 type Keeper interface {
 	GetBlockCount() (int64, error)
 
@@ -25,7 +26,7 @@ type Keeper interface {
 	GetAddressesByAccount(account string) ([]string, error)
 
 	// List all accounts/labels together with how much satoshi remains.
-	ListAccounts() (map[string]float64, error)
+	ListAccountsMinConf(conf int) (map[string]float64, error)
 
 	// send bitcoin to address
 	SendToAddress(address string, amount float64) error
