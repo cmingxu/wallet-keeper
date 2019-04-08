@@ -10,7 +10,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// default account for reserved usage, which represent
+// account belongs to enterpise default
 var DEFAULT_ACCOUNT = "duckduck"
+
+// default confirmation
 var DEFAULT_CONFIRMATION = 6
 
 type Client struct {
@@ -43,14 +47,17 @@ func NewClient(host, user, pass string) (*Client, error) {
 	return client, nil
 }
 
+// Ping
 func (client *Client) Ping() error {
 	return client.rpcClient.Ping()
 }
 
+// GetBlockCount
 func (client *Client) GetBlockCount() (int64, error) {
 	return client.rpcClient.GetBlockCount()
 }
 
+// GetAddress - default address
 func (client *Client) GetAddress(account string) (string, error) {
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
@@ -64,7 +71,10 @@ func (client *Client) GetAddress(account string) (string, error) {
 	return address.String(), nil
 }
 
+// Create Account
+// Returns customized account info
 func (client *Client) CreateAccount(account string) (keeper.Account, error) {
+	// GetAddress will create account if not exists
 	address, err := client.GetAddress(account)
 	if err != nil {
 		return keeper.Account{}, err
@@ -77,6 +87,7 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 	}, nil
 }
 
+// GetAccountInfo
 func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
 	var accountsMap map[string]float64
 	var err error
@@ -117,6 +128,7 @@ func (client *Client) GetNewAddress(account string) (string, error) {
 	return address.String(), nil
 }
 
+// GetAddressesByAccount
 func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
@@ -134,6 +146,7 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 	return addrs, nil
 }
 
+// ListAccountsMinConf
 func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) {
 	accounts := make(map[string]float64)
 	accountsWithAmount, err := client.rpcClient.ListAccountsMinConf(conf)
@@ -148,6 +161,7 @@ func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) 
 	return accounts, nil
 }
 
+// SendToAddress
 func (client *Client) SendToAddress(address string, amount float64) error {
 	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
 	if err != nil {
@@ -189,6 +203,7 @@ func (client *Client) SendFrom(account, address string, amount float64) error {
 	return nil
 }
 
+// Move
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
 	btcAmount, err := convertToBtcAmount(amount)
 	if err != nil {
@@ -198,10 +213,12 @@ func (client *Client) Move(from, to string, amount float64) (bool, error) {
 	return client.rpcClient.Move(from, to, btcAmount)
 }
 
+// ListUnspentMin
 func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error) {
 	return client.rpcClient.ListUnspentMin(minConf)
 }
 
+// decodeAddress from string to decodedAddress
 func decodeAddress(address string, cfg chaincfg.Params) (btcutil.Address, error) {
 	decodedAddress, err := btcutil.DecodeAddress(address, &cfg)
 	if err != nil {
