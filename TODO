@@ -1,2 +1,7 @@
 ## TODO list
 
+
+ - use sendfrom instead of sendtoaddress(sendfrom will check sufficent balance)
+ - create unique account for each user, and setup default account
+ - use `move` to collect deposit coin regularly
+
