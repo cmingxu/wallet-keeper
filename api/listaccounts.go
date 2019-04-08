@@ -10,11 +10,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// ListAccounts func
 func (api *ApiServer) ListAccounts(c *gin.Context) {
 	value, _ := c.Get(KEEPER_KEY) // sure about the presence of this value
 	keeper := value.(keeper.Keeper)
+	minConf := 6 // default min conf
 
-	accounts, err := keeper.ListAccounts()
+	accounts, err := keeper.ListAccountsMinConf(minConf)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
