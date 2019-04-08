@@ -23,12 +23,8 @@ func (api *ApiServer) GetAddressesByAccount(c *gin.Context) {
 	addresses, err := keeper.GetAddressesByAccount(account)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprint(err),
-		})
+		c.JSON(http.StatusInternalServerError, R(fmt.Sprint(err)))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"message": addresses,
-		})
+		c.JSON(http.StatusOK, R(addresses))
 	}
 }

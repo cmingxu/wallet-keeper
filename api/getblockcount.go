@@ -17,12 +17,8 @@ func (api *ApiServer) GetBlockCount(c *gin.Context) {
 	height, err := keeper.GetBlockCount()
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprint(err),
-		})
+		c.JSON(http.StatusInternalServerError, R(fmt.Sprint(err)))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"message": height,
-		})
+		c.JSON(http.StatusOK, R(height))
 	}
 }

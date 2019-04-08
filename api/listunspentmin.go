@@ -21,21 +21,15 @@ func (api *ApiServer) ListUnspentMin(c *gin.Context) {
 
 	conf, err := strconv.ParseUint(confarg, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprint(err),
-		})
+		c.JSON(http.StatusInternalServerError, R(fmt.Sprint(err)))
 		return
 	}
 
 	result, err := keeper.ListUnspentMin(int(conf))
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprint(err),
-		})
+		c.JSON(http.StatusInternalServerError, R(fmt.Sprint(err)))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"message": result,
-		})
+		c.JSON(http.StatusOK, R(result))
 	}
 }

@@ -18,37 +18,27 @@ func (api *ApiServer) SendToAddress(c *gin.Context) {
 	address, addrFound := c.GetQuery("address")
 	amountArg, amountFound := c.GetQuery("amount")
 	if !addrFound || !amountFound {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "both address and amount should present",
-		})
+		c.JSON(http.StatusBadRequest, R("both address and amount should present"))
 		return
 	}
 
 	amount, err := strconv.ParseFloat(amountArg, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Sprint(err),
-		})
+		c.JSON(http.StatusBadRequest, R(fmt.Sprint(err)))
 		return
 	}
 
 	// simple validation
 	if amount <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "amount should at least greater than 0",
-		})
+		c.JSON(http.StatusBadRequest, R("amount should at least greater than 0"))
 		return
 	}
 
 	err = keeper.SendToAddress(address, amount)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Sprint(err),
-		})
+		c.JSON(http.StatusBadRequest, R(fmt.Sprint(err)))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"message": address,
-		})
+		c.JSON(http.StatusOK, R(address))
 	}
 }

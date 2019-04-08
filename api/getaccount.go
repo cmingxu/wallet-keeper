@@ -16,20 +16,14 @@ func (api *ApiServer) GetAccountInfo(c *gin.Context) {
 	// retrive account from query
 	account, found := c.GetQuery("account")
 	if !found {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "no account name specified",
-		})
+		c.JSON(http.StatusBadRequest, R("no account name specified"))
 		return
 	}
 
 	accountInfo, err := keeper.GetAccountInfo(account)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "account not found",
-		})
+		c.JSON(http.StatusNotFound, R("account not found"))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"message": accountInfo,
-		})
+		c.JSON(http.StatusOK, R(accountInfo))
 	}
 }

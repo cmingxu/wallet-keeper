@@ -23,12 +23,8 @@ func (api *ApiServer) GetNewAddress(c *gin.Context) {
 	address, err := keeper.GetNewAddress(account)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprint(err),
-		})
+		c.JSON(http.StatusInternalServerError, R(fmt.Sprint(err)))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"message": address,
-		})
+		c.JSON(http.StatusOK, R(address))
 	}
 }

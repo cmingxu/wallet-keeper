@@ -21,37 +21,27 @@ func (api *ApiServer) CreateAccount(c *gin.Context) {
 	// retrive account from query
 	account, found := c.GetQuery("account")
 	if !found {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "no account name specified",
-		})
+		c.JSON(http.StatusBadRequest, R("no account name specified"))
 		return
 	}
 
 	// account validation
 	if !accountValid(account) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "account not valid, ^([a-z|A-Z|0-9])+$",
-		})
+		c.JSON(http.StatusBadRequest, R("account not valid, ^([a-z|A-Z|0-9])+$"))
 		return
 	}
 
 	if _, err := keeper.GetAccountInfo(account); err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "account exists",
-		})
+		c.JSON(http.StatusBadRequest, R("account exists"))
 		return
 	}
 
 	created, err := keeper.CreateAccount(account)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Sprint(err),
-		})
+		c.JSON(http.StatusBadRequest, R(fmt.Sprint(err)))
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"message": created,
-		})
+		c.JSON(http.StatusOK, R(created))
 	}
 }
 
