@@ -31,6 +31,9 @@ type Keeper interface {
 	// send bitcoin to address
 	SendToAddress(address string, amount float64) error
 
+	// send bitcoin from some account to target address
+	SendFrom(account, address string, amount float64) error
+
 	// list all UXTO
 	ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error)
 

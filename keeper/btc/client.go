@@ -9,6 +9,7 @@ import (
 )
 
 var DEFAULT_ACCOUNT = "duckduck"
+var DEFAULT_CONFIRMATION = 6
 
 type Client struct {
 	rpcClient *rpcclient.Client
@@ -125,6 +126,27 @@ func (client *Client) SendToAddress(address string, amount float64) error {
 		return err
 	}
 	log.Info("SendToAddressComment got hash", hash)
+
+	return nil
+}
+
+// TODO check validity of account and have sufficent balance
+func (client *Client) SendFrom(account, address string, amount float64) error {
+	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
+	if err != nil {
+		return err
+	}
+
+	btcAmount, err := convertToBtcAmount(amount)
+	if err != nil {
+		return err
+	}
+
+	hash, err := client.rpcClient.SendFrom(account, decoded, btcAmount)
+	if err != nil {
+		return err
+	}
+	log.Info("SendFrom got hash", hash)
 
 	return nil
 }
