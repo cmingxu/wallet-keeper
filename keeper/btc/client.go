@@ -38,12 +38,6 @@ func NewClient(host, user, pass string) (*Client, error) {
 		return nil, err
 	}
 
-	// check if bitcoind response
-	err = client.rpcClient.Ping()
-	if err != nil {
-		return nil, err
-	}
-
 	return client, nil
 }
 

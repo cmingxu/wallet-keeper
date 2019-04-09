@@ -7,6 +7,7 @@ import (
 	"github.com/cmingxu/wallet-keeper/keeper/btc"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 const KEEPER_KEY = "keeper"
@@ -43,6 +44,17 @@ type ApiServer struct {
 //TODO valid host is valid
 func (api *ApiServer) InitBtcClient(host, user, pass string) (err error) {
 	api.btcKeeper, err = btc.NewClient(host, user, pass)
+	return err
+}
+
+//Check
+// TODO do usdt check
+func (api *ApiServer) KeeperCheck() (err error) {
+	err = api.btcKeeper.Ping()
+	if err != nil {
+		err = errors.Wrap(err, "btc: ")
+	}
+
 	return err
 }
 
