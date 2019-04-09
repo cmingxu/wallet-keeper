@@ -7,5 +7,6 @@ VERSION=$(cat ./VERSION)
 RELEASE_IMAGE=wallet_keeper:${VERSION}
 CONTAINER_NAME=wallet_keeper_${VERSION}
 
-docker run -it --detach --publish localhost:8000:8000 --name $CONTAINER_NAME $RELEASE_IMAGE
+
+docker run -it  --publish 127.0.0.1:8000:8000/tcp --name $CONTAINER_NAME $RELEASE_IMAGE
 

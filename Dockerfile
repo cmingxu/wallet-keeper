@@ -1,9 +1,10 @@
 FROM alpine:latest
 
 ARG BINARY
-ADD ./bin/${BINARY} /
+ADD ./bin/${BINARY} /wallet-keeper
 
+
+EXPOSE 8000
 WORKDIR /
 
-CMD ${BINARY}
-
+CMD ["/wallet-keeper", "run"]

@@ -17,7 +17,7 @@ docker run --rm --name $BUILD_CONTAINER_NAME -v "$(PWD)":/go/src/app $BUILD_IMAG
 
 binary=./bin/wallet-keeper-${VERSION}
 if [[ -f ${binary} ]]; then
-  docker build -t $RELEASE_IMAGE --build-arg=$(basename ${binary}) --no-cache --rm -f ./Dockerfile .
+  docker build -t $RELEASE_IMAGE --build-arg BINARY=$(basename ${binary}) --no-cache --rm -f ./Dockerfile .
 else
   echo "unable to locate binary file '${binary}', stop"
 fi
