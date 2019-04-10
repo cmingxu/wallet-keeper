@@ -5,6 +5,7 @@ import (
 
 	"github.com/cmingxu/wallet-keeper/keeper"
 	"github.com/cmingxu/wallet-keeper/keeper/btc"
+	"github.com/cmingxu/wallet-keeper/keeper/usdt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -47,12 +48,22 @@ func (api *ApiServer) InitBtcClient(host, user, pass string) (err error) {
 	return err
 }
 
+func (api *ApiServer) InitUsdtClient(host, user, pass string) (err error) {
+	api.usdtKeeper, err = usdt.NewClient(host, user, pass)
+	return err
+}
+
 //Check
 // TODO do usdt check
 func (api *ApiServer) KeeperCheck() (err error) {
 	err = api.btcKeeper.Ping()
 	if err != nil {
 		err = errors.Wrap(err, "btc: ")
+	}
+
+	err = api.usdtKeeper.Ping()
+	if err != nil {
+		err = errors.Wrap(err, "usdt: ")
 	}
 
 	return err

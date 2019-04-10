@@ -38,6 +38,17 @@ var gateCmd = cli.Command{
 			return err
 		}
 
+		log.Infof("connecting to usdt prc addr: %s", c.String("usdt-rpc-addr"))
+		err = apiServer.InitUsdtClient(
+			c.String("usdt-rpc-addr"), //host
+			c.String("usdt-rpc-user"), // user
+			c.String("usdt-rpc-pass"), //passwd
+		)
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+
 		// Check btc/usdt rpc call connectivity
 		err = apiServer.KeeperCheck()
 		if err != nil {
