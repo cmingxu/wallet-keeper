@@ -89,7 +89,7 @@ func (api *ApiServer) HttpListen() error {
 			c.Set(KEEPER_KEY, api.btcKeeper)
 			break
 		case "usdt":
-			c.Set(KEEPER_KEY, api.btcKeeper)
+			c.Set(KEEPER_KEY, api.usdtKeeper)
 			break
 		default:
 			c.JSON(400, gin.H{"message": "no coin type specified, should be btc or usdt"})
