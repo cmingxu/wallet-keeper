@@ -114,7 +114,7 @@ func (client *Client) GetNewAddress(account string) (string, error) {
 		account = DEFAULT_ACCOUNT
 	}
 
-	address, err := client.rpcClient.GetNewAddress(DEFAULT_ACCOUNT)
+	address, err := client.rpcClient.GetNewAddress(account)
 	if err != nil {
 		return "", err
 	}
