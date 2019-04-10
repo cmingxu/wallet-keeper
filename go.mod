@@ -6,6 +6,7 @@ require (
 	github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3 // indirect
 	github.com/gin-gonic/gin v1.3.0
 	github.com/golang/protobuf v1.3.1 // indirect
+	github.com/ibclabs/omnilayer-go v0.0.0-20190208134129-cfb55a22083b
 	github.com/json-iterator/go v1.1.6 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
@@ -17,6 +18,7 @@ require (
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/ugorji/go/codec v0.0.0-20190320090025-2dc34c0b8780 // indirect
 	github.com/urfave/cli v1.20.0
+	github.com/xiaods/omnilayer-go v0.0.0-20190410092244-9e1619eb283c
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5 // indirect
 	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3 // indirect
 	golang.org/x/sys v0.0.0-20190405154228-4b34438f7a67 // indirect
