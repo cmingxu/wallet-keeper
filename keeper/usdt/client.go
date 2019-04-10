@@ -181,6 +181,7 @@ func (client *Client) Move(from, to string, amount float64) (bool, error) {
 	hash, err := client.rpcClient.OmniFoundedSend(from, to,int64(USDT_PROPERTY_ID), int64(amount), to)
 	if err != nil {
 		log.Errorf("Move USDT, from: %v, to: %v, amount: %v, got hash:%v, error: %v", from, to, int64(amount), hash, err)
+		return false, err
 	}
 
 	log.Infof("Move USDT, from: %v, to: %v, amount: %v, got hash:%v",from, to, int64(amount), hash)
