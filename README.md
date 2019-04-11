@@ -3,9 +3,16 @@ Universal BTC/USDT wallet gateway backend Golang implementation
 ## Run
 ```
 	make
-	./bin/wallet-keeper --http-listen-addr=http://0.0.0.0:8080 \
-   --log-level debug --log-path=/tmp/wallet-keeper.log
+	./bin/wallet-keeper --log-level debug --log-dir=/tmp/  \
+  run --http-listen-addr=http://0.0.0.0:8080
 ```
+
+## Run In Docker(need connectivity golang.org/x/XXXX in docker build)
+```bash
+./scripts/build.sh
+./scripts/run_wallet_keeper_docker.sh
+```
+
 
 ## How to config
 
