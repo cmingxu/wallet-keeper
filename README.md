@@ -1,4 +1,4 @@
-Jex backend Golang implementation
+Universal BTC/USDT wallet gateway backend Golang implementation
 
 ## Run
 ```
@@ -9,7 +9,7 @@ Jex backend Golang implementation
 
 ## How to config
 
-```
+```bash
 $ ./bin/wallet-keeper-0.0.1
 NAME:
    wallet-keeper-0.0.1 - A new cli application
@@ -31,11 +31,32 @@ GLOBAL OPTIONS:
    --help, -h         show help
    --version, -v      print the version
 
+$ ./bin/wallet-keeper-0.1.0 run --help
+NAME:
+   wallet-keeper-0.1.0 run - serve api gateway
+
+USAGE:
+   wallet-keeper-0.1.0 run [command options] [arguments...]
+
+OPTIONS:
+   --http-listen-addr value  http address of web application (default: "0.0.0.0:8000") [$HTTP_LISTEN_ADDR]
+   --btc-rpc-addr value      [NOTICE] testnet and mainnet have different default port (default: "192.168.0.101:8332") [$BTC_RPCADDR]
+   --btc-rpc-user value      (default: "foo") [$BTC_RPCUSER]
+   --btc-rpc-pass value      password can be generate through scripts/rcpauth.py (default: "qDDZdeQ5vw9XXFeVnXT4PZ--tGN2xNjjR4nrtyszZx0=") [$BTC_PRCPASS]
+   --usdt-rpc-addr value     [NOTICE] testnet and mainnet have different default port (default: "localhost:18332") [$USDT_RPCADDR]
+   --usdt-rpc-user value     (default: "foo") [$USDT_RPCUSER]
+   --usdt-rpc-pass value     password can be generate through scripts/rcpauth.py (default: "usdtpass") [$USDT_PRCPASS]
+
+
 ```
 
+
+
+## BTC - bitcored
 
 ### getblockcount
-```
+
+```bash
 $ curl -sSL -H "CoinType:btc" localhost:8000/getblockcount |  jq .
 {
   "message": "603443"
@@ -43,8 +64,8 @@ $ curl -sSL -H "CoinType:btc" localhost:8000/getblockcount |  jq .
 ```
 
 ### getaddress
-```
-$ curl -sSL -H "CoinType:btc" localhost:8000/getaddresses?accounts=barfoox |  jq .
+```bash
+$ curl -sSL -H "CoinType:btc" localhost:8000/getaddress?account=barfoox |  jq .
 {
   "message": [
     "2MwFt5ZbGfK2yqCWHb1hyGKkm8K6DUByPj8",
@@ -56,7 +77,7 @@ $ curl -sSL -H "CoinType:btc" localhost:8000/getaddresses?accounts=barfoox |  jq
 ```
 
 ### getnewaddress
-```
+```bash
 $ curl -sSL -H "CoinType:btc" localhost:8000/getnewaddress?accounts=barfoox |  jq .
 {
   "message": "2MwTYicqDegSuR2MsTeRVFLwkhMYSZKHPiP"
@@ -64,7 +85,7 @@ $ curl -sSL -H "CoinType:btc" localhost:8000/getnewaddress?accounts=barfoox |  j
 ```
 
 ### listaccounts
-```
+```bash
 $ curl -sSL -H "CoinType:btc" localhost:8000/listaccounts |  jq .
 {
   "message": {
@@ -77,7 +98,7 @@ $ curl -sSL -H "CoinType:btc" localhost:8000/listaccounts |  jq .
 ```
 
 ### sendtoaddress
-```
+```bash
 $ curl -sSL -H "CoinType:btc" 'localhost:8000/sendtoaddress?address=2N2VJhke2sWspswJKWTFjqfibRY1wfZPbEQ&amount=0.1' |  jq .
 {
   "message": "-6: Insufficient funds"
@@ -85,7 +106,7 @@ $ curl -sSL -H "CoinType:btc" 'localhost:8000/sendtoaddress?address=2N2VJhke2sWs
 ```
 
 ### getaddressesbyaccount
-```
+```bash
 $ curl -sSL -H "CoinType:btc" 'localhost:8000/getaddressesbyaccount?account=foobar' |  jq .
 {
   "message": [
@@ -98,7 +119,7 @@ $ curl -sSL -H "CoinType:btc" 'localhost:8000/getaddressesbyaccount?account=foob
 ```
 
 ### getaccountinfo
-```
+```bash
 $ curl -sSL -H "CoinType:btc" 'localhost:8000/getaccountinfo?account=barfoo' |  jq .
 {
   "message": {
@@ -115,7 +136,7 @@ $ curl -sSL -H "CoinType:btc" 'localhost:8000/getaccountinfo?account=barfoo' |  
 ```
 
 ### createaccount
-```
+```bash
 $ curl -sSL -H "CoinType:btc" 'localhost:8000/createaccount?account=barfoo1' |  jq .
 {
   "message": {
@@ -127,3 +148,84 @@ $ curl -sSL -H "CoinType:btc" 'localhost:8000/createaccount?account=barfoo1' |  
   }
 }
 ```
+
+## USDT - omnicore
+
+### getblockcount
+
+```bash
+$ curl -sSL -H "CoinType:usdt" localhost:8000/getblockcount |  jq .
+{
+  "message": "1488490"
+}
+```
+
+
+
+### getaddress
+
+```bash
+$ curl -sSL -H "CoinType:usdt" localhost:8000/getaddress??account=test |  jq .
+{
+  "message": "mqyY2dscucMNBHAiUid88mEgkvZ3ADJLeZ"
+}
+```
+
+
+
+### getaddressesbyaccount
+
+```bash
+$ curl -sSL -H "CoinType:usdt" 'localhost:8000/getaddressesbyaccount?account=test' |  jq .
+{
+  "message": [
+    "mkVW5QARPvvAY328y9LMHep5ZhuiTrgdd4",
+    "mvePubvtfpAo18ykLeZ1hD6BMYDismUqxf"
+  ]
+}
+```
+
+
+
+### getaccountinfo
+
+```bash
+$ curl -sSL -H "CoinType:usdt" 'localhost:8000/getaccountinfo?account=test' |  jq .
+{
+  "message": {
+    "account": "test",
+    "balance": 10,
+    "addresses": [
+      "mkVW5QARPvvAY328y9LMHep5ZhuiTrgdd4",
+      "mvePubvtfpAo18ykLeZ1hD6BMYDismUqxf"
+    ]
+  }
+}
+```
+
+
+
+### move
+
+```bash
+$ curl -sSL -H "CoinType:usdt" 'localhost:8000/move?from=mvePubvtfpAo18ykLeZ1hD6BMYDismUqxf&to=mkVW5QARPvvAY328y9LMHep5ZhuiTrgdd4&amount=3' |  jq .
+{
+  "message": "success"
+}
+```
+
+
+
+### sendfrom
+
+```bash
+$ curl -sSL -H "CoinType:usdt" 'localhost:8000/sendfrom?from=test&address=mkVW5QARPvvAY328y9LMHep5ZhuiTrgdd4&amount=3' |  jq .
+{
+  "message": "success"
+}
+```
+
+
+
+
+

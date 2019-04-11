@@ -169,8 +169,8 @@ func (client *Client) SendFrom(account, address string, amount float64) error {
 		return err
 	}
 	for _, addr := range addresses {
-		hash, _ := client.rpcClient.OmniFoundedSend(addr, address,int64(USDT_PROPERTY_ID), int64(amount), addr)
-		log.Infof("SendFrom USDT, from: %v, to: %v, amount: %v, got hash:%v",addr, address, int64(amount), hash)
+		hash, _ := client.rpcClient.OmniFoundedSend(addr, address,int64(USDT_PROPERTY_ID), floatToString(amount), addr)
+		log.Infof("SendFrom USDT, from: %v, to: %v, amount: %v, got hash:%v",addr, address, floatToString(amount), hash)
 	}
 	return nil
 }
@@ -178,12 +178,13 @@ func (client *Client) SendFrom(account, address string, amount float64) error {
 
 // Move - omni_funded_send
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
-	hash, err := client.rpcClient.OmniFoundedSend(from, to,int64(USDT_PROPERTY_ID), int64(amount), to)
+	hash, err := client.rpcClient.OmniFoundedSend(from, to,int64(USDT_PROPERTY_ID), floatToString(amount), to)
 	if err != nil {
-		log.Errorf("Move USDT, from: %v, to: %v, amount: %v, got hash:%v, error: %v", from, to, int64(amount), hash, err)
+		log.Errorf("Move USDT, from: %v, to: %v, amount: %v, got hash:%v, error: %v", from, to, floatToString(amount), hash, err)
+		return false, err
 	}
 
-	log.Infof("Move USDT, from: %v, to: %v, amount: %v, got hash:%v",from, to, int64(amount), hash)
+	log.Infof("Move USDT, from: %v, to: %v, amount: %v, got hash:%v",from, to, floatToString(amount), hash)
 	return true ,nil
 }
 
@@ -191,4 +192,11 @@ func (client *Client) Move(from, to string, amount float64) (bool, error) {
 // ListUnspentMin
 func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error) {
 	return nil,nil
+}
+
+
+//util
+func floatToString(input_num float64) string {
+    // to convert a float number to a string
+    return strconv.FormatFloat(input_num, 'f', 6, 64)
 }

@@ -66,8 +66,8 @@ github.com/ugorji/go/codec v0.0.0-20190320090025-2dc34c0b8780 h1:vG/gY/PxA3v3l04
 github.com/ugorji/go/codec v0.0.0-20190320090025-2dc34c0b8780/go.mod h1:iT03XoTwV7xq/+UGwKO3UbC1nNNlopQiY61beSdrtOA=
 github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
-github.com/xiaods/omnilayer-go v0.0.0-20190410092244-9e1619eb283c h1:b5kvFctbsNtC4R2AeNS4uwmmly7GX8U8GI3cXcUqBfI=
-github.com/xiaods/omnilayer-go v0.0.0-20190410092244-9e1619eb283c/go.mod h1:Ztg8OHbP166LeRUnyt3Xjjcxria7/Neijx4UyEjGxis=
+github.com/xiaods/omnilayer-go v0.0.0-20190410152100-538ae3daa1d1 h1:mnDuFyOS38q5JG5VS6Kt56BZhZopF7rnaPH0/9ISHPo=
+github.com/xiaods/omnilayer-go v0.0.0-20190410152100-538ae3daa1d1/go.mod h1:Ztg8OHbP166LeRUnyt3Xjjcxria7/Neijx4UyEjGxis=
 golang.org/x/crypto v0.0.0-20170930174604-9419663f5a44 h1:9lP3x0pW80sDI6t1UMSLA4to18W7R7imwAI/sWS9S8Q=
 golang.org/x/crypto v0.0.0-20170930174604-9419663f5a44/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
