@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/cmingxu/wallet-keeper/api"
 
 	log "github.com/sirupsen/logrus"
@@ -53,11 +56,11 @@ var gateCmd = cli.Command{
 		// Check btc/usdt rpc call connectivity
 		err = apiServer.KeeperCheck()
 		if err != nil {
-			log.Error(err)
+			fmt.Fprintln(os.Stderr, err)
 			return err
 		}
 
-		log.Infof("starting api gateway with addr: %s", c.String("http-listen-addr"))
+		fmt.Fprintf(os.Stdout, "starting api gateway with addr: %s", c.String("http-listen-addr"))
 		// start accepting http requests
 		return apiServer.HttpListen()
 	},

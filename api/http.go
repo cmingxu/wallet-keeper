@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/cmingxu/wallet-keeper/keeper"
@@ -29,6 +30,7 @@ var METHODS_SUPPORTED = map[string]string{
 	"/createaccount":  "create account and return receive address, error if account exists",
 	"/sendfrom":       "send amount of satoshi from some account to targets address",
 	"/move":           "move from one account to another",
+	// private
 	//"/getnewaddress":  "return a new address of specified account or default",
 	//"/getblockcount":  "return height of the blockchain",
 	//"/listunspentmin": "list all unspent transactions",
@@ -54,7 +56,6 @@ func (api *ApiServer) InitUsdtClient(host, user, pass string) (err error) {
 }
 
 //Check
-// TODO do usdt check
 func (api *ApiServer) KeeperCheck() (err error) {
 	err = api.btcKeeper.Ping()
 	if err != nil {
@@ -117,9 +118,16 @@ func (api *ApiServer) HttpListen() error {
 	})
 
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "healthy",
-		})
+		err := api.KeeperCheck()
+		if err != nil {
+			c.JSON(500, gin.H{
+				"message": fmt.Sprint(err),
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"message": "healthy",
+			})
+		}
 	})
 
 	r.GET("/help", func(c *gin.Context) {
