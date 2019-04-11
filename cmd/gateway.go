@@ -29,9 +29,10 @@ var gateCmd = cli.Command{
 
 		log.Infof("connecting to btc rpc addr: %s", c.String("btc-rpc-addr"))
 		err = apiServer.InitBtcClient(
-			c.String("btc-rpc-addr"), // host
-			c.String("btc-rpc-user"), // user
-			c.String("btc-rpc-pass"), // password
+			c.String("btc-rpc-addr"),  // host
+			c.String("btc-rpc-user"),  // user
+			c.String("btc-rpc-pass"),  // password
+			c.GlobalString("log-dir"), // logDir
 		)
 		if err != nil {
 			log.Error(err)

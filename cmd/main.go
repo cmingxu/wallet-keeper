@@ -16,8 +16,12 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		logLevelFlag,
-		logPathFlag,
+		logDirFlag,
 		envFlag,
+	}
+
+	app.Before = func(c *cli.Context) error {
+		return setupLogger(c.String("log-level"), c.String("log-dir"), "json")
 	}
 
 	err := app.Run(os.Args)

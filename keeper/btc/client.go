@@ -1,6 +1,9 @@
 package btc
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/cmingxu/wallet-keeper/keeper"
 
 	"github.com/btcsuite/btcd/btcjson"
@@ -19,10 +22,11 @@ var DEFAULT_CONFIRMATION = 6
 
 type Client struct {
 	rpcClient *rpcclient.Client
+	l         *log.Logger
 }
 
 // connect to bitcoind with HTTP RPC transport
-func NewClient(host, user, pass string) (*Client, error) {
+func NewClient(host, user, pass, logDir string) (*Client, error) {
 	connCfg := &rpcclient.ConnConfig{
 		Host:         host,
 		User:         user,
@@ -36,6 +40,16 @@ func NewClient(host, user, pass string) (*Client, error) {
 	client.rpcClient, err = rpcclient.New(connCfg, nil)
 	if err != nil {
 		return nil, err
+	}
+
+	logPath := filepath.Join(logDir, "btc.log")
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
+	if err != nil {
+		return nil, err
+	}
+	client.l = &log.Logger{
+		Out:       logFile,
+		Formatter: new(log.JSONFormatter),
 	}
 
 	return client, nil
@@ -68,12 +82,14 @@ func (client *Client) GetAddress(account string) (string, error) {
 // Create Account
 // Returns customized account info
 func (client *Client) CreateAccount(account string) (keeper.Account, error) {
+	client.l.Infof("[CreateAccount] for account %s", account)
 	// GetAddress will create account if not exists
 	address, err := client.GetAddress(account)
 	if err != nil {
 		return keeper.Account{}, err
 	}
 
+	client.l.Infof("[CreateAccount] success for account %s", account)
 	return keeper.Account{
 		Account:   account,
 		Balance:   0.0,
@@ -110,6 +126,7 @@ func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
 // GetNewAddress does map to `getnewaddress` rpc call now
 // rpcclient doesn't have such golang wrapper func.
 func (client *Client) GetNewAddress(account string) (string, error) {
+	client.l.Infof("[GetNewAddress] for account %s", account)
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
 	}
@@ -119,6 +136,7 @@ func (client *Client) GetNewAddress(account string) (string, error) {
 		return "", err
 	}
 
+	client.l.Infof("[GetNewAddress] for account %s, address is %s", account, address.String())
 	return address.String(), nil
 }
 
@@ -157,6 +175,7 @@ func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) 
 
 // SendToAddress
 func (client *Client) SendToAddress(address string, amount float64) error {
+	client.l.Infof("[SendToAddress] to address %s: %f", address, amount)
 	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
 	if err != nil {
 		return err
@@ -171,13 +190,14 @@ func (client *Client) SendToAddress(address string, amount float64) error {
 	if err != nil {
 		return err
 	}
-	log.Info("SendToAddressComment got hash", hash)
+	client.l.Infof("[SendToAddress] to address %s: %f, hash is %s", address, amount, hash)
 
 	return nil
 }
 
 // TODO check validity of account and have sufficent balance
 func (client *Client) SendFrom(account, address string, amount float64) error {
+	client.l.Infof("[SendFrom] from account %s to address %s with amount %f ", account, address, amount)
 	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
 	if err != nil {
 		return err
@@ -192,18 +212,20 @@ func (client *Client) SendFrom(account, address string, amount float64) error {
 	if err != nil {
 		return err
 	}
-	log.Info("SendFrom got hash", hash)
+	client.l.Infof("[SendFrom] from account %s to address %s with amount %f, result hash %s ", account, address, amount, hash)
 
 	return nil
 }
 
 // Move
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
+	client.l.Infof("[Move] from %s to %s with amount %f ", from, to, amount)
 	btcAmount, err := convertToBtcAmount(amount)
 	if err != nil {
 		return false, err
 	}
 
+	client.l.Infof("[Move] success from %s to %s with amount %f ", from, to, amount)
 	return client.rpcClient.Move(from, to, btcAmount)
 }
 

@@ -43,8 +43,8 @@ type ApiServer struct {
 }
 
 //TODO valid host is valid
-func (api *ApiServer) InitBtcClient(host, user, pass string) (err error) {
-	api.btcKeeper, err = btc.NewClient(host, user, pass)
+func (api *ApiServer) InitBtcClient(host, user, pass, logDir string) (err error) {
+	api.btcKeeper, err = btc.NewClient(host, user, pass, logDir)
 	return err
 }
 

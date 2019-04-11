@@ -18,9 +18,9 @@ var logLevelFlag = cli.StringFlag{
 	EnvVar: "LOG_LEVEL",
 }
 
-var logPathFlag = cli.StringFlag{
-	Name:   "log-path",
-	EnvVar: "LOG_PATH",
+var logDirFlag = cli.StringFlag{
+	Name:   "log-dir",
+	EnvVar: "LOG_DIR",
 }
 
 var btcRpcAddrFlag = cli.StringFlag{
