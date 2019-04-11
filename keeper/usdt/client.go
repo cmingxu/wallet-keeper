@@ -1,15 +1,17 @@
 package usdt
 
-
 import (
+	"os"
+	"path/filepath"
+	"strconv"
+
 	"github.com/cmingxu/wallet-keeper/keeper"
+
+	"github.com/btcsuite/btcd/btcjson"
 	log "github.com/sirupsen/logrus"
 	omnilayer "github.com/xiaods/omnilayer-go"
 	"github.com/xiaods/omnilayer-go/omnijson"
-	"strconv"
-	"github.com/btcsuite/btcd/btcjson"
 )
-
 
 // default account for reserved usage, which represent
 // account belongs to enterpise default
@@ -23,35 +25,45 @@ var USDT_PROPERTY_ID = 2
 
 type Client struct {
 	rpcClient *omnilayer.Client
+	l         *log.Logger
 }
-
 
 // GetBlockCount
 func (client *Client) GetBlockCount() (int64, error) {
 	var res omnijson.GetBlockChainInfoResult
 	if res, err := client.rpcClient.GetBlockChainInfo(); err == nil {
-		return res.Blocks,nil
+		return res.Blocks, nil
 	}
-	return res.Blocks,nil
+	return res.Blocks, nil
 }
 
 // connect to omnicore with HTTP RPC transport
-func NewClient(host, user, pass string) (*Client, error) {
+func NewClient(host, user, pass, logDir string) (*Client, error) {
 	connCfg := &omnilayer.ConnConfig{
-		Host:         host,
-		User:         user,
-		Pass:         pass,
+		Host: host,
+		User: user,
+		Pass: pass,
 	}
 
 	client := &Client{}
 	client.rpcClient = omnilayer.New(connCfg)
+
+	logPath := filepath.Join(logDir, "usdt.log")
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
+	if err != nil {
+		return nil, err
+	}
+	client.l = &log.Logger{
+		Out:       logFile,
+		Formatter: new(log.JSONFormatter),
+	}
 
 	return client, nil
 }
 
 // Ping
 func (client *Client) Ping() error {
-	_ , err := client.rpcClient.GetInfo()
+	_, err := client.rpcClient.GetInfo()
 	return err
 }
 
@@ -73,11 +85,13 @@ func (client *Client) GetAddress(account string) (string, error) {
 // Returns customized account info
 func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 	// GetAddress will create account if not exists
+	client.l.Infof("[CreateAccount] for account %s", account)
 	address, err := client.GetAddress(account)
 	if err != nil {
 		return keeper.Account{}, err
 	}
 
+	client.l.Infof("[CreateAccount] success for account %s", account)
 	return keeper.Account{
 		Account:   account,
 		Balance:   0.0,
@@ -96,7 +110,7 @@ func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
 	balance = 0
 	for _, addr := range addresses {
 		cmd := omnijson.OmniGetBalanceCommand{
-			Address: addr,
+			Address:    addr,
 			PropertyID: int32(USDT_PROPERTY_ID),
 		}
 		if curBalance, err := client.rpcClient.OmniGetBalance(cmd); err == nil {
@@ -131,9 +145,9 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 	return addrs, nil
 }
 
-
 // GetNewAddress ...
 func (client *Client) GetNewAddress(account string) (string, error) {
+	client.l.Infof("[GetNewAddress] for account %s", account)
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
 	}
@@ -143,9 +157,9 @@ func (client *Client) GetNewAddress(account string) (string, error) {
 		return "", err
 	}
 
+	client.l.Infof("[GetNewAddress] for account %s, address is %s", account, address)
 	return address, nil
 }
-
 
 // ListAccountsMinConf
 // USDT RPC don't need this Stub func
@@ -155,48 +169,46 @@ func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) 
 	return accounts, nil
 }
 
-
-// SendToAddress ... 
+// SendToAddress ...
 // USDT RPC don't need this Stub func
 func (client *Client) SendToAddress(address string, amount float64) error {
+	client.l.Infof("[SendToAddress] to address %s: %f", address, amount)
 	return nil
 }
 
 //SendFrom ...omni_funded_send
 func (client *Client) SendFrom(account, address string, amount float64) error {
+	client.l.Infof("[SendFrom] from account %s to address %s with amount %f ", account, address, amount)
 	addresses, err := client.rpcClient.GetAddressesByAccount(account)
 	if err != nil {
 		return err
 	}
 	for _, addr := range addresses {
-		hash, _ := client.rpcClient.OmniFoundedSend(addr, address,int64(USDT_PROPERTY_ID), floatToString(amount), addr)
-		log.Infof("SendFrom USDT, from: %v, to: %v, amount: %v, got hash:%v",addr, address, floatToString(amount), hash)
+		hash, _ := client.rpcClient.OmniFoundedSend(addr, address, int64(USDT_PROPERTY_ID), floatToString(amount), addr)
+		client.l.Infof("[SendFrom] from account %s to address %s with amount %f, result hash %s ", account, addr, amount, hash)
 	}
 	return nil
 }
 
-
 // Move - omni_funded_send
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
-	hash, err := client.rpcClient.OmniFoundedSend(from, to,int64(USDT_PROPERTY_ID), floatToString(amount), to)
+	client.l.Infof("[Move] from %s to %s with amount %f ", from, to, amount)
+	hash, err := client.rpcClient.OmniFoundedSend(from, to, int64(USDT_PROPERTY_ID), floatToString(amount), to)
 	if err != nil {
-		log.Errorf("Move USDT, from: %v, to: %v, amount: %v, got hash:%v, error: %v", from, to, floatToString(amount), hash, err)
 		return false, err
 	}
 
-	log.Infof("Move USDT, from: %v, to: %v, amount: %v, got hash:%v",from, to, floatToString(amount), hash)
-	return true ,nil
+	client.l.Infof("[Move] success from %s to %s with amount %f hash is %s ", from, to, amount, hash)
+	return true, nil
 }
-
 
 // ListUnspentMin
 func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error) {
-	return nil,nil
+	return nil, nil
 }
-
 
 //util
 func floatToString(input_num float64) string {
-    // to convert a float number to a string
-    return strconv.FormatFloat(input_num, 'f', 6, 64)
+	// to convert a float number to a string
+	return strconv.FormatFloat(input_num, 'f', 6, 64)
 }

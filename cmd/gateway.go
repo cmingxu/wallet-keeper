@@ -47,6 +47,7 @@ var gateCmd = cli.Command{
 			c.String("usdt-rpc-addr"), // host
 			c.String("usdt-rpc-user"), // user
 			c.String("usdt-rpc-pass"), // passwd
+			c.GlobalString("log-dir"), // logDir
 		)
 		if err != nil {
 			log.Error(err)
