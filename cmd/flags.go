@@ -63,6 +63,13 @@ var usdtRpcPassFlag = cli.StringFlag{
 	Usage:  "password can be generate through scripts/rcpauth.py",
 }
 
+var usdtPropertyIdFlag = cli.IntFlag{
+	Name:   "usdt-property-id",
+	Value:  2,
+	EnvVar: "USDT_PROPERTY_ID",
+	Usage:  "property id of usdt, default is 2",
+}
+
 var envFlag = cli.StringFlag{
 	Name:   "env",
 	Value:  "production",

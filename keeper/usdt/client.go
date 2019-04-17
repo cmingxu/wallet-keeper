@@ -20,12 +20,11 @@ var DEFAULT_ACCOUNT = "duckduck"
 // default confirmation
 var DEFAULT_CONFIRMATION = 1
 
-// default property id
-var USDT_PROPERTY_ID = 2
-
 type Client struct {
 	rpcClient *omnilayer.Client
 	l         *log.Logger
+
+	propertyId int64
 }
 
 // GetBlockCount
@@ -38,14 +37,14 @@ func (client *Client) GetBlockCount() (int64, error) {
 }
 
 // connect to omnicore with HTTP RPC transport
-func NewClient(host, user, pass, logDir string) (*Client, error) {
+func NewClient(host, user, pass, logDir string, propertyId int64) (*Client, error) {
 	connCfg := &omnilayer.ConnConfig{
 		Host: host,
 		User: user,
 		Pass: pass,
 	}
 
-	client := &Client{}
+	client := &Client{propertyId: propertyId}
 	client.rpcClient = omnilayer.New(connCfg)
 
 	logPath := filepath.Join(logDir, "usdt.log")
@@ -111,7 +110,7 @@ func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
 	for _, addr := range addresses {
 		cmd := omnijson.OmniGetBalanceCommand{
 			Address:    addr,
-			PropertyID: int32(USDT_PROPERTY_ID),
+			PropertyID: int32(client.propertyId),
 		}
 		if curBalance, err := client.rpcClient.OmniGetBalance(cmd); err == nil {
 			if b, err := strconv.ParseFloat(curBalance.Balance, 64); err == nil {
@@ -184,7 +183,7 @@ func (client *Client) SendFrom(account, address string, amount float64) error {
 		return err
 	}
 	for _, addr := range addresses {
-		hash, _ := client.rpcClient.OmniFoundedSend(addr, address, int64(USDT_PROPERTY_ID), floatToString(amount), addr)
+		hash, _ := client.rpcClient.OmniFoundedSend(addr, address, client.propertyId, floatToString(amount), addr)
 		client.l.Infof("[SendFrom] from account %s to address %s with amount %f, result hash %s ", account, addr, amount, hash)
 	}
 	return nil
@@ -193,7 +192,7 @@ func (client *Client) SendFrom(account, address string, amount float64) error {
 // Move - omni_funded_send
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
 	client.l.Infof("[Move] from %s to %s with amount %f ", from, to, amount)
-	hash, err := client.rpcClient.OmniFoundedSend(from, to, int64(USDT_PROPERTY_ID), floatToString(amount), to)
+	hash, err := client.rpcClient.OmniFoundedSend(from, to, client.propertyId, floatToString(amount), to)
 	if err != nil {
 		return false, err
 	}

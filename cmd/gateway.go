@@ -21,6 +21,7 @@ var gateCmd = cli.Command{
 		usdtRpcAddrFlag,
 		usdtRpcUserFlag,
 		usdtRpcPassFlag,
+		usdtPropertyIdFlag,
 	},
 	Usage: "serve api gateway",
 	Action: func(c *cli.Context) error {
@@ -44,10 +45,11 @@ var gateCmd = cli.Command{
 
 		log.Infof("connecting to usdt prc addr: %s", c.String("usdt-rpc-addr"))
 		err = apiServer.InitUsdtClient(
-			c.String("usdt-rpc-addr"), // host
-			c.String("usdt-rpc-user"), // user
-			c.String("usdt-rpc-pass"), // passwd
-			c.GlobalString("log-dir"), // logDir
+			c.String("usdt-rpc-addr"),        // host
+			c.String("usdt-rpc-user"),        // user
+			c.String("usdt-rpc-pass"),        // password
+			c.GlobalString("log-dir"),        // logDir
+			int64(c.Int("usdt-property-id")), // propertyId
 		)
 		if err != nil {
 			log.Error(err)

@@ -50,8 +50,8 @@ func (api *ApiServer) InitBtcClient(host, user, pass, logDir string) (err error)
 	return err
 }
 
-func (api *ApiServer) InitUsdtClient(host, user, pass, logDir string) (err error) {
-	api.usdtKeeper, err = usdt.NewClient(host, user, pass, logDir)
+func (api *ApiServer) InitUsdtClient(host, user, pass, logDir string, propertyId int64) (err error) {
+	api.usdtKeeper, err = usdt.NewClient(host, user, pass, logDir, propertyId)
 	return err
 }
 
