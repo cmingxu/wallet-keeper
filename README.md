@@ -38,7 +38,9 @@ GLOBAL OPTIONS:
    --help, -h         show help
    --version, -v      print the version
 
-$ ./bin/wallet-keeper-0.1.0 run --help
+
+$> ./bin/wallet-keeper-0.1.0 run --help
+use stdout as default log output
 NAME:
    wallet-keeper-0.1.0 run - serve api gateway
 
@@ -53,8 +55,7 @@ OPTIONS:
    --usdt-rpc-addr value     [NOTICE] testnet and mainnet have different default port (default: "localhost:18332") [$USDT_RPCADDR]
    --usdt-rpc-user value     (default: "foo") [$USDT_RPCUSER]
    --usdt-rpc-pass value     password can be generate through scripts/rcpauth.py (default: "usdtpass") [$USDT_PRCPASS]
-
-
+   --usdt-property-id value  property id of usdt, default is 2 (default: 2) [$USDT_PROPERTY_ID]
 ```
 
 
