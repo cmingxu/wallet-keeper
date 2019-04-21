@@ -34,7 +34,7 @@ type Keeper interface {
 
 	// Get account, together with balance and address
 	// return error if account not exist
-	GetAccountInfo(account string) (Account, error)
+	GetAccountInfo(account string, conf int) (Account, error)
 
 	// Returns address under accont, use default account if
 	// not provided

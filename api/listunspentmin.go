@@ -16,12 +16,12 @@ func (api *ApiServer) ListUnspentMin(c *gin.Context) {
 
 	confarg, found := c.GetQuery("minconf")
 	if !found {
-		confarg = "0"
+		confarg = "1"
 	}
 
 	conf, err := strconv.ParseUint(confarg, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, R(fmt.Sprint(err)))
+		c.JSON(http.StatusBadRequest, R(fmt.Sprint(err)))
 		return
 	}
 

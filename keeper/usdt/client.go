@@ -99,7 +99,7 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 }
 
 // GetAccountInfo
-func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
+func (client *Client) GetAccountInfo(account string, minConf int) (keeper.Account, error) {
 	addresses, err := client.GetAddressesByAccount(account)
 	if err != nil {
 		return keeper.Account{}, err

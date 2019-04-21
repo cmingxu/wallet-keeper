@@ -3,9 +3,9 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/cmingxu/wallet-keeper/keeper"
-	"github.com/cmingxu/wallet-keeper/keeper/btc"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -16,7 +16,18 @@ func (api *ApiServer) ListAccounts(c *gin.Context) {
 	value, _ := c.Get(KEEPER_KEY) // sure about the presence of this value
 	keeper := value.(keeper.Keeper)
 
-	accounts, err := keeper.ListAccountsMinConf(btc.DEFAULT_CONFIRMATION)
+	confarg, found := c.GetQuery("minconf")
+	if !found {
+		confarg = "6"
+	}
+
+	conf, err := strconv.ParseUint(confarg, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, R(fmt.Sprint(err)))
+		return
+	}
+
+	accounts, err := keeper.ListAccountsMinConf(int(conf))
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusInternalServerError, R(fmt.Sprint(err)))

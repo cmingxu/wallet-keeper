@@ -98,10 +98,10 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 }
 
 // GetAccountInfo
-func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
+func (client *Client) GetAccountInfo(account string, minCon int) (keeper.Account, error) {
 	var accountsMap map[string]float64
 	var err error
-	if accountsMap, err = client.ListAccountsMinConf(0); err != nil {
+	if accountsMap, err = client.ListAccountsMinConf(minCon); err != nil {
 		return keeper.Account{}, err
 	}
 

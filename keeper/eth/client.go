@@ -74,7 +74,7 @@ func (client *Client) GetAddress(account string) (string, error) {
 
 // Create Account
 // Returns customized account info
-func (client *Client) CreateAccount(account string) (keeper.Account, error) {
+func (client *Client) CreateAccount(account string, minConf int) (keeper.Account, error) {
 	return nil, nil
 }
 

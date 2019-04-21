@@ -31,7 +31,7 @@ func (api *ApiServer) CreateAccount(c *gin.Context) {
 		return
 	}
 
-	if _, err := keeper.GetAccountInfo(account); err == nil {
+	if _, err := keeper.GetAccountInfo(account, 0); err == nil {
 		c.JSON(http.StatusBadRequest, R("account exists"))
 		return
 	}
