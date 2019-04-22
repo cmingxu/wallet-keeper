@@ -13,7 +13,7 @@ if [[ -z $(docker images | grep "$BUILD_IMAGE") ]]; then
   docker build -t $BUILD_IMAGE --no-cache --rm -f ./Dockerfile.build .
 fi
 
-docker run --rm --name $BUILD_CONTAINER_NAME -v "$(PWD)":/go/src/app $BUILD_IMAGE make
+docker run --rm --name $BUILD_CONTAINER_NAME -v "$(pwd)":/go/src/app $BUILD_IMAGE make
 
 binary=./bin/wallet-keeper-${VERSION}
 if [[ -f ${binary} ]]; then
