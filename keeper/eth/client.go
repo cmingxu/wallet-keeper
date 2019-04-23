@@ -16,7 +16,6 @@ const PASSWORD = "password"
 
 type Client struct {
 	ethClient *ethclient.Client
-	ks        *keystore.KeyStore
 	l         *log.Logger
 }
 
@@ -47,14 +46,14 @@ func (client *Client) Ping() error {
 }
 
 // Create Key store
-func (client *Client) createKeyStore(keyStorePath string) error {
+func (client *Client) createKeyStore(keyStorePath string) (string, error) {
 	ks := keystore.NewKeyStore(keyStorePath, keystore.StandardScryptN, keystore.StandardScryptP)
 	account, err := ks.NewAccount(PASSWORD)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	cient.ks = ks
+	return account.Address.Hex(), nil
 }
 
 // GetBlockCount
@@ -79,7 +78,7 @@ func (client *Client) CreateAccount(account string, minConf int) (keeper.Account
 }
 
 // GetAccountInfo
-func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
+func (client *Client) GetAccountInfo(address string) (keeper.Account, error) {
 	return keeper.Account{}, nil
 }
 
@@ -87,7 +86,7 @@ func (client *Client) GetAccountInfo(account string) (keeper.Account, error) {
 // GetNewAddress does map to `getnewaddress` rpc call now
 // rpcclient doesn't have such golang wrapper func.
 func (client *Client) GetNewAddress(account string) (string, error) {
-	return "", nil
+	return client.createKeyStore("/Users/kevinxu/Code/go/src/github.com/cmingxu/wallet-keeper")
 }
 
 // GetAddressesByAccount
