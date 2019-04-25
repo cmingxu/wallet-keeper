@@ -6,11 +6,11 @@ import (
 	"strconv"
 
 	"github.com/cmingxu/wallet-keeper/keeper"
+	"github.com/cmingxu/wallet-keeper/omnilayer"
+	"github.com/cmingxu/wallet-keeper/omnilayer/omnijson"
 
 	"github.com/btcsuite/btcd/btcjson"
 	log "github.com/sirupsen/logrus"
-	omnilayer "github.com/xiaods/omnilayer-go"
-	"github.com/xiaods/omnilayer-go/omnijson"
 )
 
 // default account for reserved usage, which represent
