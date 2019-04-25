@@ -109,7 +109,7 @@ func (api *ApiServer) HttpListen() error {
 	r.GET("/sendfrom", api.SendFrom)
 	r.GET("/listunspentmin", api.ListUnspentMin)
 	r.GET("/move", api.Move)
-	r.GET("/test", api.Test)
+	// r.GET("/test", api.Test)
 
 	// misc API
 	r.GET("/ping", func(c *gin.Context) {

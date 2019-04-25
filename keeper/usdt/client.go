@@ -54,6 +54,7 @@ func NewClient(host, user, pass, logDir string, propertyId int64) (*Client, erro
 	}
 	client.l = &log.Logger{
 		Out:       logFile,
+		Level:     log.DebugLevel,
 		Formatter: new(log.JSONFormatter),
 	}
 
