@@ -1,3 +1,5 @@
 /bin
 bitcoin.conf
 bitcoind-data/
+btc.log
+usdt.log

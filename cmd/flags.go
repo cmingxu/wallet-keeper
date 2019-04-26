@@ -75,3 +75,9 @@ var envFlag = cli.StringFlag{
 	Value:  "production",
 	EnvVar: "ENV",
 }
+
+var backendsFlag = cli.StringFlag{
+	Name:   "backends",
+	Value:  "btc,usdt,eth",
+	EnvVar: "BACKENDS",
+}
