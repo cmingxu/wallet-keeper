@@ -63,6 +63,7 @@ func (client *Client) Ping() error {
 
 // GetBlockCount
 func (client *Client) GetBlockCount() (int64, error) {
+	client.l.Infof("[GetBlockCount]")
 	return client.rpcClient.GetBlockCount()
 }
 
@@ -71,6 +72,7 @@ func (client *Client) GetAddress(account string) (string, error) {
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
 	}
+	client.l.Infof("[GetAddress] for account %s", account)
 
 	address, err := client.rpcClient.GetAccountAddress(account)
 	if err != nil {
@@ -90,7 +92,6 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 		return keeper.Account{}, err
 	}
 
-	client.l.Infof("[CreateAccount] success for account %s", account)
 	return keeper.Account{
 		Account:   account,
 		Balance:   0.0,
@@ -99,10 +100,12 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 }
 
 // GetAccountInfo
-func (client *Client) GetAccountInfo(account string, minCon int) (keeper.Account, error) {
+func (client *Client) GetAccountInfo(account string, minConf int) (keeper.Account, error) {
 	var accountsMap map[string]float64
 	var err error
-	if accountsMap, err = client.ListAccountsMinConf(minCon); err != nil {
+
+	client.l.Infof("[GetAccountInfo] account %s, with minConf %d", account, minConf)
+	if accountsMap, err = client.ListAccountsMinConf(minConf); err != nil {
 		return keeper.Account{}, err
 	}
 
@@ -127,7 +130,6 @@ func (client *Client) GetAccountInfo(account string, minCon int) (keeper.Account
 // GetNewAddress does map to `getnewaddress` rpc call now
 // rpcclient doesn't have such golang wrapper func.
 func (client *Client) GetNewAddress(account string) (string, error) {
-	client.l.Infof("[GetNewAddress] for account %s", account)
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
 	}
@@ -146,6 +148,8 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
 	}
+
+	client.l.Infof("[GetAddressesByAccount] for account %s", account)
 	addresses, err := client.rpcClient.GetAddressesByAccount(account)
 	if err != nil {
 		return []string{}, err
@@ -160,9 +164,11 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 }
 
 // ListAccountsMinConf
-func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) {
+func (client *Client) ListAccountsMinConf(minConf int) (map[string]float64, error) {
 	accounts := make(map[string]float64)
-	accountsWithAmount, err := client.rpcClient.ListAccountsMinConf(conf)
+
+	client.l.Infof("[ListAccountsMinConf] with minConf %d", minConf)
+	accountsWithAmount, err := client.rpcClient.ListAccountsMinConf(minConf)
 	if err != nil {
 		return accounts, err
 	}
@@ -187,7 +193,7 @@ func (client *Client) SendToAddress(address string, amount float64) error {
 		return err
 	}
 
-	hash, err := client.rpcClient.SendToAddressComment(decoded, btcAmount, "comment", "commentto")
+	hash, err := client.rpcClient.SendToAddressComment(decoded, btcAmount, "", "")
 	if err != nil {
 		return err
 	}

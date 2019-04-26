@@ -18,6 +18,12 @@ func (c *Client) GetAddressesByAccount(account string) (omnijson.GetAddressesByA
 	})).Receive()
 }
 
+func (c *Client) GetAccountAddress(account string) (omnijson.GetAccountAddressResult, error) {
+	return futureGetAccountAddress(c.do(omnijson.GetAccountAddressCommand{
+		Account: account,
+	})).Receive()
+}
+
 func (c *Client) GetNewAddress(account string) (omnijson.GetNewAddressResult, error) {
 	return futureGetNewAddress(c.do(omnijson.GetNewAddressCommand{
 		Account: account,

@@ -29,6 +29,8 @@ type Client struct {
 
 // GetBlockCount
 func (client *Client) GetBlockCount() (int64, error) {
+	client.l.Infof("[GetBlockCount]")
+
 	var res omnijson.GetBlockChainInfoResult
 	if res, err := client.rpcClient.GetBlockChainInfo(); err == nil {
 		return res.Blocks, nil
@@ -72,8 +74,9 @@ func (client *Client) GetAddress(account string) (string, error) {
 	if len(account) == 0 {
 		account = DEFAULT_ACCOUNT
 	}
+	client.l.Infof("[GetAddress] for account %s", account)
 
-	address, err := client.rpcClient.GetNewAddress(account)
+	address, err := client.rpcClient.GetAccountAddress(account)
 	if err != nil {
 		return "", err
 	}
@@ -91,7 +94,6 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 		return keeper.Account{}, err
 	}
 
-	client.l.Infof("[CreateAccount] success for account %s", account)
 	return keeper.Account{
 		Account:   account,
 		Balance:   0.0,
@@ -106,6 +108,7 @@ func (client *Client) GetAccountInfo(account string, minConf int) (keeper.Accoun
 		return keeper.Account{}, err
 	}
 
+	client.l.Infof("[GetAccountInfo] account %s, with minConf %d", account, minConf)
 	var balance float64
 	balance = 0
 	for _, addr := range addresses {
@@ -142,6 +145,7 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 		addrs = append(addrs, addr)
 	}
 
+	client.l.Infof("[GetAddressesByAccount] for account %s", account)
 	return addrs, nil
 }
 
