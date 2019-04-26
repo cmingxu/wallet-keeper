@@ -50,6 +50,7 @@ func (c *Client) sendPost(jReq *jsonRequest) {
 		return
 	}
 
+	// why this
 	req.Close = true
 	req.Header.Set(contentType, contentTypeJSON)
 	req.SetBasicAuth(c.config.User, c.config.Pass)

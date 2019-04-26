@@ -12,6 +12,12 @@ func (c *Client) OmniFoundedSend(from, to string, propertyid int64, amount, fee 
 	})).Receive()
 }
 
+func (c *Client) ListAccounts(minConf int64) (omnijson.ListAccountsResult, error) {
+	return futureListAccounts(c.do(omnijson.ListAccountsCommand{
+		MinConf: minConf,
+	})).Receive()
+}
+
 func (c *Client) GetAddressesByAccount(account string) (omnijson.GetAddressesByAccountResult, error) {
 	return futureGetAddressesByAccount(c.do(omnijson.GetAddressesByAccountCommand{
 		Account: account,

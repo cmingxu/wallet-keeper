@@ -27,17 +27,6 @@ type Client struct {
 	propertyId int64
 }
 
-// GetBlockCount
-func (client *Client) GetBlockCount() (int64, error) {
-	client.l.Infof("[GetBlockCount]")
-
-	var res omnijson.GetBlockChainInfoResult
-	if res, err := client.rpcClient.GetBlockChainInfo(); err == nil {
-		return res.Blocks, nil
-	}
-	return res.Blocks, nil
-}
-
 // connect to omnicore with HTTP RPC transport
 func NewClient(host, user, pass, logDir string, propertyId int64) (*Client, error) {
 	connCfg := &omnilayer.ConnConfig{
@@ -61,6 +50,17 @@ func NewClient(host, user, pass, logDir string, propertyId int64) (*Client, erro
 	}
 
 	return client, nil
+}
+
+// GetBlockCount
+func (client *Client) GetBlockCount() (int64, error) {
+	client.l.Infof("[GetBlockCount]")
+
+	var res omnijson.GetBlockChainInfoResult
+	if res, err := client.rpcClient.GetBlockChainInfo(); err == nil {
+		return res.Blocks, nil
+	}
+	return res.Blocks, nil
 }
 
 // Ping
@@ -109,8 +109,7 @@ func (client *Client) GetAccountInfo(account string, minConf int) (keeper.Accoun
 	}
 
 	client.l.Infof("[GetAccountInfo] account %s, with minConf %d", account, minConf)
-	var balance float64
-	balance = 0
+	var balance float64 = 0
 	for _, addr := range addresses {
 		cmd := omnijson.OmniGetBalanceCommand{
 			Address:    addr,
@@ -166,9 +165,24 @@ func (client *Client) GetNewAddress(account string) (string, error) {
 }
 
 // ListAccountsMinConf
-// USDT RPC don't need this Stub func
-func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) {
+func (client *Client) ListAccountsMinConf(minConf int) (map[string]float64, error) {
 	accounts := make(map[string]float64)
+
+	client.l.Infof("[ListAccountsMinConf] with minConf %d", minConf)
+	accountsWithAmount, err := client.rpcClient.ListAccounts(int64(minConf))
+	if err != nil {
+		return accounts, err
+	}
+
+	for account, _ := range accountsWithAmount {
+		var accountInfo keeper.Account
+		accountInfo, err = client.GetAccountInfo(account, minConf)
+		if err != nil {
+			accounts[account] = -1
+		} else {
+			accounts[account] = accountInfo.Balance
+		}
+	}
 
 	return accounts, nil
 }
@@ -183,14 +197,15 @@ func (client *Client) SendToAddress(address string, amount float64) error {
 //SendFrom ...omni_funded_send
 func (client *Client) SendFrom(account, address string, amount float64) error {
 	client.l.Infof("[SendFrom] from account %s to address %s with amount %f ", account, address, amount)
-	addresses, err := client.rpcClient.GetAddressesByAccount(account)
+	fromAddr, err := client.rpcClient.GetAccountAddress(account)
 	if err != nil {
+		client.l.Errorf("[SendFrom] go error: %s", err)
 		return err
 	}
-	for _, addr := range addresses {
-		hash, _ := client.rpcClient.OmniFoundedSend(addr, address, client.propertyId, floatToString(amount), addr)
-		client.l.Infof("[SendFrom] from account %s to address %s with amount %f, result hash %s ", account, addr, amount, hash)
-	}
+
+	hash, _ := client.rpcClient.OmniFoundedSend(fromAddr, address, client.propertyId, floatToString(amount), fromAddr)
+	client.l.Infof("[SendFrom] from account %s to address %s with amount %f, result hash %s ", fromAddr, address, amount, hash)
+
 	return nil
 }
 

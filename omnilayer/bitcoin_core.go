@@ -6,6 +6,21 @@ import (
 	"github.com/cmingxu/wallet-keeper/omnilayer/omnijson"
 )
 
+// =========ListAccounts==================
+type futureListAccounts chan *response
+
+func (f futureListAccounts) Receive() (omnijson.ListAccountsResult, error) {
+	var result omnijson.ListAccountsResult
+
+	data, err := receive(f)
+	if err != nil {
+		return result, err
+	}
+
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
 // =========GetAccountAddress==================
 type futureGetAccountAddress chan *response
 
