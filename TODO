@@ -6,3 +6,8 @@
  - use `move` to collect deposit coin regularly
  - separately log file to record coin operation
 
+[2019-04-26 14:51]
+
+ - usdt need integration test
+ - eth implementation
+
