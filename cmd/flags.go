@@ -72,7 +72,7 @@ var usdtPropertyIdFlag = cli.IntFlag{
 
 var ethRpcAddrFlag = cli.StringFlag{
 	Name:   "eth-rpc-addr",
-	Value:  "192.168.0.101:8545",
+	Value:  "http://192.168.0.101:8545",
 	EnvVar: "ETH_RPCADDR",
 }
 
@@ -80,6 +80,12 @@ var ethWalletDirFlag = cli.StringFlag{
 	Name:   "eth-wallet-dir",
 	Value:  "/data/eth-wallet",
 	EnvVar: "ETH_WALLET_DIR",
+}
+
+var ethAccountFlag = cli.StringFlag{
+	Name:   "eth-account-path",
+	Value:  "/data/eht-accounts.json",
+	EnvVar: "ETH_ACCONNT_PATH",
 }
 
 var envFlag = cli.StringFlag{

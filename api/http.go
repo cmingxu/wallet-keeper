@@ -57,21 +57,32 @@ func (api *ApiServer) InitUsdtClient(host, user, pass, logDir string, propertyId
 	return err
 }
 
-func (api *ApiServer) InitEthClient(host, walletDir, logDir string) (err error) {
-	api.ethKeeper, err = eth.NewClient(host, walletDir, logDir)
+func (api *ApiServer) InitEthClient(host, walletDir, accountPath, logDir string) (err error) {
+	api.ethKeeper, err = eth.NewClient(host, walletDir, accountPath, logDir)
 	return err
 }
 
 //Check
 func (api *ApiServer) KeeperCheck() (err error) {
-	err = api.btcKeeper.Ping()
-	if err != nil {
-		err = errors.Wrap(err, "btc: ")
+	if api.btcKeeper != nil {
+		err = api.btcKeeper.Ping()
+		if err != nil {
+			err = errors.Wrap(err, "btc: ")
+		}
 	}
 
-	err = api.usdtKeeper.Ping()
-	if err != nil {
-		err = errors.Wrap(err, "usdt: ")
+	if api.usdtKeeper != nil {
+		err = api.usdtKeeper.Ping()
+		if err != nil {
+			err = errors.Wrap(err, "usdt: ")
+		}
+	}
+
+	if api.ethKeeper != nil {
+		err = api.ethKeeper.Ping()
+		if err != nil {
+			err = errors.Wrap(err, "eth: ")
+		}
 	}
 
 	return err
@@ -98,6 +109,9 @@ func (api *ApiServer) HttpListen() error {
 			break
 		case "usdt":
 			c.Set(KEEPER_KEY, api.usdtKeeper)
+			break
+		case "eth":
+			c.Set(KEEPER_KEY, api.ethKeeper)
 			break
 		default:
 			c.JSON(400, gin.H{"message": "no coin type specified, should be btc or usdt"})

@@ -3,3 +3,5 @@ bitcoin.conf
 bitcoind-data/
 btc.log
 usdt.log
+eth.log
+eth-accounts.json
