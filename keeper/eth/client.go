@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	//"math/big"
 	"os"
 	"path/filepath"
 	"sync"
@@ -22,6 +20,9 @@ import (
 )
 
 const PASSWORD = "password"
+
+var ErrNotValidAccountFile = errors.New("not valid account file")
+var ErrNotDirectory = errors.New("not valid directory")
 
 type Client struct {
 	l *log.Logger
@@ -59,16 +60,12 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 	if err != nil {
 		return nil, err
 	}
-	if !stat.Mode().IsRegular() {
-		return nil, errors.New(fmt.Sprintf("%s is not a valid file", client.accountFilePath))
-	}
-	file, err := os.Open(client.accountFilePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
 
-	err = json.NewDecoder(file).Decode(&client.accountAddressMap)
+	if !stat.Mode().IsRegular() {
+		return nil, ErrNotValidAccountFile
+	}
+
+	err = client.loadAccountMap()
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +77,7 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 	}
 
 	if !stat.IsDir() {
-		return nil, errors.New(fmt.Sprintf("%s is not a directory", walletDir))
+		return nil, ErrNotDirectory
 	}
 	client.store = keystore.NewKeyStore(walletDir, keystore.StandardScryptN, keystore.StandardScryptP)
 
@@ -154,7 +151,6 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 	client.accountAddressMap[account] = acc.Address.Hex()
 	client.accountAddressLock.Unlock()
 
-	// TODO need more robust solution
 	client.persistAccountMap()
 
 	return keeper.Account{
@@ -225,7 +221,20 @@ func (client *Client) Move(from, to string, amount float64) (bool, error) {
 	return true, nil
 }
 
+// persistAccountMap write `accountAddressMap` into file `client.accountAddressMap`,
+// `accountAddressMap` will persist into file with json format,
+//
+// Error - return if `client.accountFilePath` not found or write permission not right.
 func (client *Client) persistAccountMap() error {
+	stat, err := os.Stat(client.accountFilePath)
+	if err != nil && os.IsNotExist(err) {
+		return err
+	}
+
+	if !stat.Mode().IsRegular() {
+		return ErrNotValidAccountFile
+	}
+
 	file, err := os.Open(client.accountFilePath)
 	if err != nil {
 		return err
@@ -235,8 +244,19 @@ func (client *Client) persistAccountMap() error {
 	return json.NewEncoder(file).Encode(&client.accountAddressMap)
 }
 
-//func weiToEther(wei *big.Int) big.Float {
-////result := new(big.Float)
-////result.Mul(wei, 1/big.NewFloat(params.Ether))
+// loadAccountMap from filesystem.
+func (client *Client) loadAccountMap() error {
+	client.accountAddressMap = make(map[string]string)
+	file, err := os.Open(client.accountFilePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 
-//}
+	err = json.NewDecoder(file).Decode(&client.accountAddressMap)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
