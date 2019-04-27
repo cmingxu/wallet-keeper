@@ -6,6 +6,7 @@ import (
 
 	"github.com/cmingxu/wallet-keeper/keeper"
 	"github.com/cmingxu/wallet-keeper/keeper/btc"
+	"github.com/cmingxu/wallet-keeper/keeper/eth"
 	"github.com/cmingxu/wallet-keeper/keeper/usdt"
 
 	"github.com/gin-gonic/gin"
@@ -42,6 +43,7 @@ type ApiServer struct {
 	httpListenAddr string
 	btcKeeper      keeper.Keeper
 	usdtKeeper     keeper.Keeper
+	ethKeeper      keeper.Keeper
 }
 
 //TODO valid host is valid
@@ -52,6 +54,11 @@ func (api *ApiServer) InitBtcClient(host, user, pass, logDir string) (err error)
 
 func (api *ApiServer) InitUsdtClient(host, user, pass, logDir string, propertyId int64) (err error) {
 	api.usdtKeeper, err = usdt.NewClient(host, user, pass, logDir, propertyId)
+	return err
+}
+
+func (api *ApiServer) InitEthClient(host, walletDir, logDir string) (err error) {
+	api.ethKeeper, err = eth.NewClient(host, walletDir, logDir)
 	return err
 }
 

@@ -29,6 +29,8 @@ var gateCmd = cli.Command{
 		usdtRpcUserFlag,
 		usdtRpcPassFlag,
 		usdtPropertyIdFlag,
+		ethRpcAddrFlag,
+		ethWalletDirFlag,
 		backendsFlag,
 	},
 	Usage: "serve api gateway",
@@ -63,6 +65,19 @@ var gateCmd = cli.Command{
 				c.String("usdt-rpc-pass"),        // password
 				c.GlobalString("log-dir"),        // logDir
 				int64(c.Int("usdt-property-id")), // propertyId
+			)
+			if err != nil {
+				log.Error(err)
+				return err
+			}
+		}
+
+		if backends.Contains("eth") {
+			log.Infof("connecting to btc prc addr: %s", c.String("btc-rpc-addr"))
+			err = apiServer.InitEthClient(
+				c.String("eth-rpc-addr"), // host
+				c.String("eth-wallet-dir"),
+				c.GlobalString("log-dir"), // logDir
 			)
 			if err != nil {
 				log.Error(err)
