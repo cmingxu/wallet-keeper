@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/cmingxu/wallet-keeper/keeper"
+	"github.com/cmingxu/wallet-keeper/notifier"
 
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -44,6 +45,8 @@ type Client struct {
 	accountFilePath    string
 	accountAddressMap  map[string]string
 	accountAddressLock sync.Mutex
+
+	noti *notifier.Notifier
 }
 
 // TODO more defensive logic
@@ -53,6 +56,7 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 		accountFilePath:    accountFilePath,
 		accountAddressMap:  make(map[string]string),
 		accountAddressLock: sync.Mutex{},
+		noti:               notifier.New(),
 	}
 
 	// accountAddressMap initialization
