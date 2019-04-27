@@ -8,6 +8,7 @@ import (
 
 var ErrAccountNotFound = errors.New("error account not found")
 var ErrAccountExists = errors.New("error account exists")
+var ErrNotSupport = errors.New("error not supported")
 
 func IsNotFound(err error) bool {
 	return err.Error() == "error account not found"

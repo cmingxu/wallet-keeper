@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	//"math/big"
 	"os"
 	"path/filepath"
 	"sync"
@@ -13,7 +14,9 @@ import (
 
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	//"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	log "github.com/sirupsen/logrus"
 )
@@ -37,29 +40,29 @@ type Client struct {
 	// we should have our own account/address map internally.
 
 	// only with this map we can provide services for the upstream services.
-	accountPath        string
+	accountFilePath    string
 	accountAddressMap  map[string]string
 	accountAddressLock sync.Mutex
 }
 
-// TODO move defensive logic
-func NewClient(host, walletDir, accountPath, logDir string) (*Client, error) {
+// TODO more defensive logic
+func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error) {
 	client := &Client{
 		walletDir:          walletDir,
-		accountPath:        accountPath,
+		accountFilePath:    accountFilePath,
 		accountAddressMap:  make(map[string]string),
 		accountAddressLock: sync.Mutex{},
 	}
 
 	// accountAddressMap initialization
-	stat, err := os.Stat(client.accountPath)
+	stat, err := os.Stat(client.accountFilePath)
 	if err != nil {
 		return nil, err
 	}
 	if !stat.Mode().IsRegular() {
-		return nil, errors.New(fmt.Sprintf("%s is not a valid file", client.accountPath))
+		return nil, errors.New(fmt.Sprintf("%s is not a valid file", client.accountFilePath))
 	}
-	file, err := os.Open(client.accountPath)
+	file, err := os.Open(client.accountFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +131,7 @@ func (client *Client) GetBlockCount() (int64, error) {
 func (client *Client) GetAddress(account string) (string, error) {
 	address, ok := client.accountAddressMap[account]
 	if !ok {
-		return "", errors.New(fmt.Sprintf("%s no exists", account))
+		return "", keeper.ErrAccountNotFound
 	}
 
 	return address, nil
@@ -137,8 +140,9 @@ func (client *Client) GetAddress(account string) (string, error) {
 // Create Account
 func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 	address, _ := client.GetAddress(account)
+	log.Println(address)
 	if len(address) > 0 {
-		return keeper.Account{}, errors.New(fmt.Sprintf("%s exists", account))
+		return keeper.Account{}, keeper.ErrAccountExists
 	}
 
 	acc, err := client.store.NewAccount(PASSWORD)
@@ -163,22 +167,34 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 }
 
 // GetAccountInfo
-func (client *Client) GetAccountInfo(address string, minConf int) (keeper.Account, error) {
-	return keeper.Account{}, nil
+func (client *Client) GetAccountInfo(account string, minConf int) (keeper.Account, error) {
+	address, ok := client.accountAddressMap[account]
+	if !ok {
+		return keeper.Account{}, keeper.ErrAccountNotFound
+	}
+
+	var balance hexutil.Big
+	err := client.ethRpcClient.CallContext(context.Background(), &balance, "eth_getBalance", common.HexToAddress(address))
+	if err != nil {
+		return keeper.Account{}, err
+	}
+
+	return keeper.Account{
+		Account:   account,
+		Balance:   0, // TODO
+		Addresses: []string{address},
+	}, nil
 }
 
-// TODO
-// GetNewAddress does map to `getnewaddress` rpc call now
-// rpcclient doesn't have such golang wrapper func.
 func (client *Client) GetNewAddress(account string) (string, error) {
-	return "", errors.New("not valid operation for ethereum")
+	return "", keeper.ErrNotSupport
 }
 
 // GetAddressesByAccount
 func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 	address, ok := client.accountAddressMap[account]
 	if !ok {
-		return []string{}, errors.New(fmt.Sprintf("%s not exists", account))
+		return []string{}, keeper.ErrAccountNotFound
 	}
 
 	return []string{address}, nil
@@ -191,7 +207,7 @@ func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) 
 
 // SendToAddress
 func (client *Client) SendToAddress(address string, amount float64) error {
-	return nil
+	return keeper.ErrNotSupport
 }
 
 // TODO check validity of account and have sufficent balance
@@ -201,7 +217,7 @@ func (client *Client) SendFrom(account, address string, amount float64) error {
 
 // ListUnspentMin
 func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error) {
-	return []btcjson.ListUnspentResult{}, errors.New("ethereum does not support UXTO")
+	return []btcjson.ListUnspentResult{}, keeper.ErrNotSupport
 }
 
 // Move
@@ -210,7 +226,7 @@ func (client *Client) Move(from, to string, amount float64) (bool, error) {
 }
 
 func (client *Client) persistAccountMap() error {
-	file, err := os.Open(client.accountPath)
+	file, err := os.Open(client.accountFilePath)
 	if err != nil {
 		return err
 	}
@@ -218,3 +234,9 @@ func (client *Client) persistAccountMap() error {
 
 	return json.NewEncoder(file).Encode(&client.accountAddressMap)
 }
+
+//func weiToEther(wei *big.Int) big.Float {
+////result := new(big.Float)
+////result.Mul(wei, 1/big.NewFloat(params.Ether))
+
+//}
