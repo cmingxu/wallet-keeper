@@ -12,6 +12,7 @@ require (
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/protobuf v1.3.1 // indirect
+	github.com/google/uuid v1.0.0
 	github.com/json-iterator/go v1.1.6 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0 // indirect

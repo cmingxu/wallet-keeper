@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"math/big"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/cmingxu/wallet-keeper/keeper"
@@ -18,6 +20,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -102,6 +106,9 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 		Out:       logFile,
 		Formatter: new(log.JSONFormatter),
 	}
+
+	//TODO
+	go client.noti.Start()
 
 	return client, nil
 }
@@ -240,6 +247,48 @@ func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, 
 // Move
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
 	return true, nil
+}
+
+func (client *Client) AddRoutes(engine *gin.Engine) {
+	notificationGroup := engine.Group("/notifiers")
+	// list all avaliable receivers
+	notificationGroup.GET("/list", func(c *gin.Context) {
+		c.JSON(http.StatusOK, client.noti.ListReceivers())
+	})
+
+	// install new receiver
+	//  endpoint - http://callbackdomain.com/foo/bar
+	//  retryCount - 1
+	//  eventTypes - eth_balance_change_event
+	notificationGroup.POST("/install", func(c *gin.Context) {
+		var installParams struct {
+			RetryCount uint   `json:"retryCount"`
+			Endpoint   string `json:"endpoint"`
+			EventTypes string `json:"eventTypes"`
+		}
+
+		if c.ShouldBind(&installParams) == nil {
+			receiver := notifier.NewReceiver(
+				installParams.Endpoint,
+				strings.SplitN(installParams.EventTypes, ",", -1),
+				installParams.RetryCount,
+			)
+
+			uuidIns, _ := uuid.NewUUID()
+			client.noti.InstallReceiver(uuidIns.String(), receiver)
+		}
+	})
+
+	notificationGroup.POST("/uninstall", func(c *gin.Context) {
+		var uninstallParams struct {
+			Name string `json:"name"`
+		}
+
+		if c.ShouldBind(&uninstallParams) == nil {
+			client.noti.UninstallReceiver(uninstallParams.Name)
+		}
+	})
+	return
 }
 
 // persistAccountMap write `accountAddressMap` into file `client.accountAddressMap`,

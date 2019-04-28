@@ -41,6 +41,7 @@ var METHODS_SUPPORTED = map[string]string{
 
 type ApiServer struct {
 	httpListenAddr string
+	engine         *gin.Engine
 	btcKeeper      keeper.Keeper
 	usdtKeeper     keeper.Keeper
 	ethKeeper      keeper.Keeper
@@ -49,16 +50,19 @@ type ApiServer struct {
 //TODO valid host is valid
 func (api *ApiServer) InitBtcClient(host, user, pass, logDir string) (err error) {
 	api.btcKeeper, err = btc.NewClient(host, user, pass, logDir)
+	api.btcKeeper.AddRoutes(api.engine)
 	return err
 }
 
 func (api *ApiServer) InitUsdtClient(host, user, pass, logDir string, propertyId int64) (err error) {
 	api.usdtKeeper, err = usdt.NewClient(host, user, pass, logDir, propertyId)
+	api.usdtKeeper.AddRoutes(api.engine)
 	return err
 }
 
 func (api *ApiServer) InitEthClient(host, walletDir, accountPath, logDir string) (err error) {
 	api.ethKeeper, err = eth.NewClient(host, walletDir, accountPath, logDir)
+	api.ethKeeper.AddRoutes(api.engine)
 	return err
 }
 
@@ -88,13 +92,18 @@ func (api *ApiServer) KeeperCheck() (err error) {
 	return err
 }
 
-func NewApiServer(addr string) (*ApiServer, error) {
-	return &ApiServer{
+func NewApiServer(addr string) *ApiServer {
+	apiServer := &ApiServer{
 		httpListenAddr: addr,
-	}, nil
+	}
+
+	// build gin.Engine and register routers
+	apiServer.buildEngine()
+
+	return apiServer
 }
 
-func (api *ApiServer) HttpListen() error {
+func (api *ApiServer) buildEngine() {
 	r := gin.Default()
 
 	// with midlleware determine which currency is active
@@ -158,5 +167,9 @@ func (api *ApiServer) HttpListen() error {
 		})
 	})
 
-	return r.Run(api.httpListenAddr)
+	api.engine = r
+}
+
+func (api *ApiServer) HttpListen() error {
+	return api.engine.Run(api.httpListenAddr)
 }

@@ -37,13 +37,10 @@ var gateCmd = cli.Command{
 	Usage: "serve api gateway",
 	Action: func(c *cli.Context) error {
 
+		var err error
+		apiServer := api.NewApiServer(c.String("http-listen-addr"))
+
 		backends := Backends(c.String("backends"))
-
-		apiServer, err := api.NewApiServer(c.String("http-listen-addr"))
-		if err != nil {
-			return nil
-		}
-
 		if backends.Contains("btc") {
 			log.Infof("connecting to btc addr: %s", c.String("btc-rpc-addr"))
 			err = apiServer.InitBtcClient(
