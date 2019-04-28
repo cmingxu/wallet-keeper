@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/cmingxu/wallet-keeper/keeper"
 	"github.com/cmingxu/wallet-keeper/notifier"
@@ -27,11 +28,21 @@ import (
 
 const PASSWORD = "password"
 
+// At this inteval will refresh accountBalanceMap,
+// If balance changed, event will send out to any receiver.
+var AccountBalanceWatcherInterval = time.Second * 20
+
 var ErrNotValidAccountFile = errors.New("not valid account file")
 var ErrNotDirectory = errors.New("not valid directory")
 
 // address is not valid
 var ErrInvalidAddress = errors.New("invalid address")
+
+type EthAccount struct {
+	account string  `json:"account"`
+	address string  `json:"address"`
+	balance float64 `json:"balance"`
+}
 
 type Client struct {
 	l *log.Logger
@@ -46,13 +57,16 @@ type Client struct {
 	// keystore
 	store *keystore.KeyStore
 
+	accountFilePath string
 	// account/address map lock, since ethereum doesn't support account
 	// we should have our own account/address map internally.
-
 	// only with this map we can provide services for the upstream services.
-	accountFilePath    string
 	accountAddressMap  map[string]string
 	accountAddressLock sync.Mutex
+
+	// account/balance map
+	accountBalanceMap  map[string]float64
+	accountBalanceLock sync.Mutex
 
 	noti *notifier.Notifier
 }
@@ -63,6 +77,9 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 		accountFilePath:    accountFilePath,
 		accountAddressMap:  make(map[string]string),
 		accountAddressLock: sync.Mutex{},
+
+		accountBalanceMap:  make(map[string]float64),
+		accountBalanceLock: sync.Mutex{},
 		noti:               notifier.New(),
 	}
 
@@ -110,8 +127,16 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 		Formatter: new(log.JSONFormatter),
 	}
 
-	//TODO
+	for account, address := range client.accountAddressMap {
+		balance, err := client.getBalance(address)
+		if err != nil {
+			log.Debug(err)
+		}
+		client.accountBalanceMap[account] = balance
+	}
+
 	go client.noti.Start()
+	go client.accountBalanceWatcher()
 
 	return client, nil
 }
@@ -164,6 +189,10 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 	client.accountAddressMap[account] = acc.Address.Hex()
 	client.accountAddressLock.Unlock()
 
+	client.accountBalanceLock.Lock()
+	client.accountBalanceMap[account] = 0
+	client.accountBalanceLock.Unlock()
+
 	err = client.persistAccountMap()
 	if err != nil {
 		return keeper.Account{}, err
@@ -185,16 +214,14 @@ func (client *Client) GetAccountInfo(account string, minConf int) (keeper.Accoun
 		return keeper.Account{}, keeper.ErrAccountNotFound
 	}
 
-	var balance hexutil.Big
-	err := client.ethRpcClient.CallContext(context.Background(), &balance, "eth_getBalance", common.HexToAddress(address), "latest")
+	balance, err := client.getBalance(address)
 	if err != nil {
 		return keeper.Account{}, err
 	}
 
-	float64Value, _ := weiToEther(balance.ToInt()).Float64()
 	return keeper.Account{
 		Account:   account,
-		Balance:   float64Value,
+		Balance:   balance,
 		Addresses: []string{address},
 	}, nil
 }
@@ -217,15 +244,13 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) {
 	accounts := make(map[string]float64, len(client.accountAddressMap))
 	for name, address := range client.accountAddressMap {
-		var balance hexutil.Big
-		err := client.ethRpcClient.CallContext(context.Background(), &balance, "eth_getBalance", common.HexToAddress(address), "latest")
+		balance, err := client.getBalance(address)
 		if err != nil {
 			client.l.Errorf("[ListAccountsMinConf] %s", err)
 
 			accounts[name] = 0
 		} else {
-			float64Value, _ := weiToEther(balance.ToInt()).Float64()
-			accounts[name] = float64Value
+			accounts[name] = balance
 		}
 	}
 
@@ -391,4 +416,56 @@ func (client *Client) loadAccountMap() error {
 	}
 
 	return nil
+}
+
+func (client *Client) getBalance(address string) (float64, error) {
+	var balance hexutil.Big
+	err := client.ethRpcClient.CallContext(context.Background(), &balance,
+		"eth_getBalance", common.HexToAddress(address), "latest")
+	if err != nil {
+		return 0, err
+	}
+
+	float64Value, _ := weiToEther(balance.ToInt()).Float64()
+	return float64Value, nil
+}
+
+func (client *Client) accountBalanceWatcher() {
+	ticker := time.NewTicker(AccountBalanceWatcherInterval)
+
+	refreshFunc := func() {
+		for account, balance := range client.accountBalanceMap {
+			address, found := client.accountAddressMap[account]
+			if found {
+				newBalance, err := client.getBalance(address)
+				if err != nil {
+					log.Println(err)
+				}
+
+				// balance updated
+				if balance == newBalance {
+					event := notifier.NewEthBalanceChangeEvent(map[string]interface{}{
+						"account":    account,
+						"address":    address,
+						"newBalance": newBalance,
+						"balance":    balance,
+					})
+					client.noti.EventChan() <- event
+
+					client.accountBalanceLock.Lock()
+					client.accountBalanceMap[account] = newBalance
+					client.accountBalanceLock.Unlock()
+				}
+			}
+		}
+	}
+
+	refreshFunc()
+
+	for {
+		select {
+		case <-ticker.C:
+			refreshFunc()
+		}
+	}
 }

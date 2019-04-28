@@ -1,6 +1,6 @@
 package notifier
 
 type Event interface {
-	GetEvent() map[string]string
+	GetEvent() map[string]interface{}
 	Type() string
 }

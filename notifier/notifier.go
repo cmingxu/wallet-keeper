@@ -33,7 +33,7 @@ func (notifier *Notifier) ListReceivers() map[string]*Receiver {
 	return notifier.receivers
 }
 
-func (notifier *Notifier) EventChan() <-chan Event {
+func (notifier *Notifier) EventChan() chan<- Event {
 	return notifier.eventChan
 }
 
