@@ -2,6 +2,7 @@ package eth
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"errors"
 	"math/big"
@@ -18,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/gin-gonic/gin"
@@ -29,6 +31,9 @@ const PASSWORD = "password"
 
 var ErrNotValidAccountFile = errors.New("not valid account file")
 var ErrNotDirectory = errors.New("not valid directory")
+
+// address is not valid
+var ErrInvalidAddress = errors.New("invalid address")
 
 type Client struct {
 	l *log.Logger
@@ -235,7 +240,62 @@ func (client *Client) SendToAddress(address string, amount float64) error {
 }
 
 // TODO check validity of account and have sufficent balance
-func (client *Client) SendFrom(account, address string, amount float64) error {
+func (client *Client) SendFrom(account, hexToAddress string, amount float64) error {
+	hexFromAddress := account
+	if !common.IsHexAddress(account) {
+		hexFromAddress, found := client.accountAddressMap[account]
+		_ = hexFromAddress
+		if !found {
+			return ErrInvalidAddress
+		}
+	}
+
+	if !common.IsHexAddress(hexFromAddress) {
+		return ErrInvalidAddress
+	}
+
+	if !common.IsHexAddress(hexToAddress) {
+		return ErrInvalidAddress
+	}
+
+	fromAddress := common.HexToAddress(hexFromAddress)
+	toAddress := common.HexToAddress(hexToAddress)
+
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	value := etherToWei(amount) // in wei (1 eth)
+	gasLimit := uint64(21000)   // in units
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, []byte{})
+
+	chainID, err := client.NetworkID(context.Background())
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	privateKey := &ecdsa.PrivateKey{}
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	err = client.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
 	return nil
 }
 
@@ -246,6 +306,11 @@ func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, 
 
 // Move
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
+	err := client.SendFrom(from, to, amount)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 
@@ -336,5 +401,11 @@ func weiToEther(wei *big.Int) *big.Float {
 	weiEther := new(big.Float).SetFloat64(float64(1 / params.Ether))
 	weiInFloat := new(big.Float).SetFloat64(float64(wei.Int64()))
 	result.Mul(weiInFloat, weiEther)
+	return result
+}
+
+func etherToWei(ether float64) *big.Int {
+	result := new(big.Int)
+	result.SetInt64(int64(ether * params.Ether))
 	return result
 }
