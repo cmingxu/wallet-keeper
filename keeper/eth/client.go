@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"errors"
+	"math"
 	"math/big"
 	"net/http"
 	"os"
@@ -267,8 +268,8 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 		return err
 	}
 
-	value := etherToWei(amount) // in wei (1 eth)
-	gasLimit := uint64(21000)   // in units
+	value := etherToWei(amount)
+	gasLimit := uint64(21000)
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Error(err)
@@ -397,15 +398,12 @@ func (client *Client) loadAccountMap() error {
 }
 
 func weiToEther(wei *big.Int) *big.Float {
-	result := new(big.Float)
-	weiEther := new(big.Float).SetFloat64(float64(1 / params.Ether))
-	weiInFloat := new(big.Float).SetFloat64(float64(wei.Int64()))
-	result.Mul(weiInFloat, weiEther)
-	return result
+	weiFloat := new(big.Float)
+	weiFloat.SetString(wei.String())
+	return new(big.Float).Quo(weiFloat, big.NewFloat(math.Pow10(18)))
 }
 
 func etherToWei(ether float64) *big.Int {
-	result := new(big.Int)
-	result.SetInt64(int64(ether * params.Ether))
-	return result
+	weiInt64 := int64(ether * params.Ether)
+	return big.NewInt(weiInt64)
 }
