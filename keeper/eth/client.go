@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"math/big"
 	"os"
 	"path/filepath"
 	"sync"
@@ -15,7 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	//"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	log "github.com/sirupsen/logrus"
 )
@@ -169,20 +170,21 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 
 // GetAccountInfo
 func (client *Client) GetAccountInfo(account string, minConf int) (keeper.Account, error) {
-	address, ok := client.accountAddressMap[account]
-	if !ok {
+	address, found := client.accountAddressMap[account]
+	if !found {
 		return keeper.Account{}, keeper.ErrAccountNotFound
 	}
 
 	var balance hexutil.Big
-	err := client.ethRpcClient.CallContext(context.Background(), &balance, "eth_getBalance", common.HexToAddress(address))
+	err := client.ethRpcClient.CallContext(context.Background(), &balance, "eth_getBalance", common.HexToAddress(address), "latest")
 	if err != nil {
 		return keeper.Account{}, err
 	}
 
+	float64Value, _ := weiToEther(balance.ToInt()).Float64()
 	return keeper.Account{
 		Account:   account,
-		Balance:   0, // TODO
+		Balance:   float64Value,
 		Addresses: []string{address},
 	}, nil
 }
@@ -203,7 +205,21 @@ func (client *Client) GetAddressesByAccount(account string) ([]string, error) {
 
 // ListAccountsMinConf
 func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) {
-	return make(map[string]float64), nil
+	accounts := make(map[string]float64, len(client.accountAddressMap))
+	for name, address := range client.accountAddressMap {
+		var balance hexutil.Big
+		err := client.ethRpcClient.CallContext(context.Background(), &balance, "eth_getBalance", common.HexToAddress(address), "latest")
+		if err != nil {
+			client.l.Errorf("[ListAccountsMinConf] %s", err)
+
+			accounts[name] = 0
+		} else {
+			float64Value, _ := weiToEther(balance.ToInt()).Float64()
+			accounts[name] = float64Value
+		}
+	}
+
+	return accounts, nil
 }
 
 // SendToAddress
@@ -264,4 +280,12 @@ func (client *Client) loadAccountMap() error {
 	}
 
 	return nil
+}
+
+func weiToEther(wei *big.Int) *big.Float {
+	result := new(big.Float)
+	weiEther := new(big.Float).SetFloat64(float64(1 / params.Ether))
+	weiInFloat := new(big.Float).SetFloat64(float64(wei.Int64()))
+	result.Mul(weiInFloat, weiEther)
+	return result
 }
