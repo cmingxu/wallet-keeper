@@ -148,18 +148,18 @@ func (client *Client) Ping() error {
 
 // GetBlockCount
 func (client *Client) GetBlockCount() (int64, error) {
-	var num string
-	err := client.ethRpcClient.CallContext(context.Background(), &num, "eth_blockNumber")
+	var hexHeight string
+	err := client.ethRpcClient.CallContext(context.Background(), &hexHeight, "eth_blockNumber")
 	if err != nil {
 		return 0, err
 	}
 
-	big, err := hexutil.DecodeBig(num)
+	height, err := hexutil.DecodeBig(hexHeight)
 	if err != nil {
 		return 0, err
 	}
 
-	return big.Int64(), nil
+	return height.Int64(), nil
 }
 
 // GetAddress - default address
@@ -175,7 +175,6 @@ func (client *Client) GetAddress(account string) (string, error) {
 // Create Account
 func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 	address, _ := client.GetAddress(account)
-	log.Println(address)
 	if len(address) > 0 {
 		return keeper.Account{}, keeper.ErrAccountExists
 	}
