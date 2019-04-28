@@ -2,11 +2,8 @@ package eth
 
 import (
 	"context"
-	"crypto/ecdsa"
 	"encoding/json"
 	"errors"
-	"math"
-	"math/big"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,11 +14,11 @@ import (
 	"github.com/cmingxu/wallet-keeper/notifier"
 
 	"github.com/btcsuite/btcd/btcjson"
+	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -276,16 +273,15 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 		return err
 	}
 
-	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, []byte{})
-
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
 		log.Error(err)
 		return err
 	}
 
-	privateKey := &ecdsa.PrivateKey{}
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
+	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, []byte{})
+	accountStore := accounts.Account{Address: fromAddress}
+	signedTx, err := client.store.SignTx(accountStore, tx, chainID)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -395,15 +391,4 @@ func (client *Client) loadAccountMap() error {
 	}
 
 	return nil
-}
-
-func weiToEther(wei *big.Int) *big.Float {
-	weiFloat := new(big.Float)
-	weiFloat.SetString(wei.String())
-	return new(big.Float).Quo(weiFloat, big.NewFloat(math.Pow10(18)))
-}
-
-func etherToWei(ether float64) *big.Int {
-	weiInt64 := int64(ether * params.Ether)
-	return big.NewInt(weiInt64)
 }

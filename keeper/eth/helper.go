@@ -3,12 +3,14 @@ package eth
 import (
 	"context"
 	"fmt"
+	"math"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
@@ -89,4 +91,15 @@ func toCallArg(msg ethereum.CallMsg) interface{} {
 		arg["gasPrice"] = (*hexutil.Big)(msg.GasPrice)
 	}
 	return arg
+}
+
+func weiToEther(wei *big.Int) *big.Float {
+	weiFloat := new(big.Float)
+	weiFloat.SetString(wei.String())
+	return new(big.Float).Quo(weiFloat, big.NewFloat(math.Pow10(18)))
+}
+
+func etherToWei(ether float64) *big.Int {
+	weiInt64 := int64(ether * params.Ether)
+	return big.NewInt(weiInt64)
 }
