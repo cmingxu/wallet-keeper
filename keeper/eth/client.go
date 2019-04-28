@@ -49,7 +49,6 @@ type Client struct {
 	noti *notifier.Notifier
 }
 
-// TODO more defensive logic
 func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error) {
 	client := &Client{
 		walletDir:          walletDir,
@@ -77,7 +76,7 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 	// keystore initialization
 	stat, err = os.Stat(walletDir)
 	if err != nil {
-		return nil, nil
+		return nil, ErrNotDirectory
 	}
 
 	if !stat.IsDir() {
@@ -86,11 +85,10 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 	client.store = keystore.NewKeyStore(walletDir, keystore.StandardScryptN, keystore.StandardScryptP)
 
 	// rpcClient initialization
-	rpcClient, err := rpc.Dial(host)
+	client.ethRpcClient, err = rpc.Dial(host)
 	if err != nil {
 		return nil, err
 	}
-	client.ethRpcClient = rpcClient
 
 	// log initialization
 	logPath := filepath.Join(logDir, "eth.log")
@@ -155,7 +153,10 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 	client.accountAddressMap[account] = acc.Address.Hex()
 	client.accountAddressLock.Unlock()
 
-	client.persistAccountMap()
+	err = client.persistAccountMap()
+	if err != nil {
+		return keeper.Account{}, err
+	}
 
 	return keeper.Account{
 		Account: account,
@@ -239,13 +240,13 @@ func (client *Client) persistAccountMap() error {
 		return ErrNotValidAccountFile
 	}
 
-	file, err := os.Open(client.accountFilePath)
+	file, err := os.OpenFile(client.accountFilePath, os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return json.NewEncoder(file).Encode(&client.accountAddressMap)
+	return json.NewEncoder(file).Encode(client.accountAddressMap)
 }
 
 // loadAccountMap from filesystem.

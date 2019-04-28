@@ -45,7 +45,7 @@ var gateCmd = cli.Command{
 		}
 
 		if backends.Contains("btc") {
-			log.Infof("connecting to btc rpc addr: %s", c.String("btc-rpc-addr"))
+			log.Infof("connecting to btc addr: %s", c.String("btc-rpc-addr"))
 			err = apiServer.InitBtcClient(
 				c.String("btc-rpc-addr"),  // host
 				c.String("btc-rpc-user"),  // user
@@ -59,7 +59,7 @@ var gateCmd = cli.Command{
 		}
 
 		if backends.Contains("usdt") {
-			log.Infof("connecting to usdt prc addr: %s", c.String("usdt-rpc-addr"))
+			log.Infof("connecting to usdt addr: %s", c.String("usdt-rpc-addr"))
 			err = apiServer.InitUsdtClient(
 				c.String("usdt-rpc-addr"),        // host
 				c.String("usdt-rpc-user"),        // user
@@ -74,7 +74,7 @@ var gateCmd = cli.Command{
 		}
 
 		if backends.Contains("eth") {
-			log.Infof("connecting to btc prc addr: %s", c.String("btc-rpc-addr"))
+			log.Infof("connecting to eth  addr: %s", c.String("eth-rpc-addr"))
 			err = apiServer.InitEthClient(
 				c.String("eth-rpc-addr"), // host
 				c.String("eth-wallet-dir"),
