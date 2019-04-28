@@ -40,6 +40,7 @@ func NewReceiver(endpoint string, eventTypes []string, retriesCount uint) *Recei
 	}
 }
 
+// Check if event type in receivier's eventTypes
 func (r *Receiver) Match(event Event) bool {
 	for _, et := range r.eventTypes {
 		if et == event.Type() {
@@ -50,6 +51,7 @@ func (r *Receiver) Match(event Event) bool {
 	return false
 }
 
+// Accept event and spawn new goroutine to post event back to the endpoint.
 func (r *Receiver) Accept(event Event) {
 	sendFunc := func(event Event) error {
 		buf := bytes.NewBufferString("")
@@ -65,6 +67,7 @@ func (r *Receiver) Accept(event Event) {
 			return ErrShouldRetry
 		}
 
+		// should retry if endpoint does not return status code 200
 		if resp.StatusCode != http.StatusOK {
 			return ErrShouldRetry
 		}
@@ -73,7 +76,7 @@ func (r *Receiver) Accept(event Event) {
 	}
 
 	go func() {
-		retryRemain := r.retryCount
+		retryRemains := r.retryCount
 		ticker := time.NewTicker(10 * time.Second)
 		for {
 			select {
@@ -83,15 +86,17 @@ func (r *Receiver) Accept(event Event) {
 				if err == nil {
 					return
 				} else {
+					// stop retrying if serious error happend
 					if !ShouldRetry(err) {
 						return
 					}
 
-					if retryRemain > 0 {
-						retryRemain = retryRemain - 1
-					} else {
+					if retryRemains <= 0 {
+						log.Debugf("stop posting event after n retries")
 						return
 					}
+
+					retryRemains = retryRemains - 1
 				}
 			}
 		}
