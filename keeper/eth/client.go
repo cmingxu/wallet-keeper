@@ -442,7 +442,7 @@ func (client *Client) accountBalanceWatcher() {
 				}
 
 				// balance updated
-				if balance == newBalance {
+				if balance != newBalance {
 					event := notifier.NewEthBalanceChangeEvent(map[string]interface{}{
 						"account":    account,
 						"address":    address,
