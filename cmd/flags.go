@@ -84,7 +84,7 @@ var ethWalletDirFlag = cli.StringFlag{
 
 var ethAccountFlag = cli.StringFlag{
 	Name:   "eth-account-path",
-	Value:  "/data/eht-accounts.json",
+	Value:  "/data/eth-accounts.json",
 	EnvVar: "ETH_ACCONNT_PATH",
 }
 
