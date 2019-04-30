@@ -305,6 +305,12 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, []byte{})
 	accountStore := accounts.Account{Address: fromAddress}
+	err = client.store.TimedUnlock(accountStore, PASSWORD, time.Duration(time.Second*10))
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
 	signedTx, err := client.store.SignTx(accountStore, tx, chainID)
 	if err != nil {
 		log.Error(err)
