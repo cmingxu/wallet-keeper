@@ -1,4 +1,4 @@
-Wallet-Keeper simplified access to BTC/OmniProtocol/ETH backends with unified APIs, help cryptocurrency developers focus their bussiness logic instead RPC details of each backend.
+Wallet-Keeper simplified access to BTC/OmniProtocol/ETH backends with unified APIs, help cryptocurrency developers focus their bussiness logic instead of RPC details of each backend.
 
 ## Run
 ```
