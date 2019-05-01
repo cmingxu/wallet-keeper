@@ -10,7 +10,6 @@ import (
 	"github.com/cmingxu/wallet-keeper/omnilayer/omnijson"
 
 	"github.com/btcsuite/btcd/btcjson"
-	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -225,10 +224,6 @@ func (client *Client) Move(from, to string, amount float64) (bool, error) {
 // ListUnspentMin
 func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, error) {
 	return nil, nil
-}
-
-func (client *Client) AddRoutes(engine *gin.Engine) {
-	return
 }
 
 //util

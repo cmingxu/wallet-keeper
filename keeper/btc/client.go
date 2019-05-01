@@ -10,7 +10,6 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/btcsuite/btcutil"
-	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -235,10 +234,6 @@ func (client *Client) Move(from, to string, amount float64) (bool, error) {
 
 	client.l.Infof("[Move] success from %s to %s with amount %f ", from, to, amount)
 	return client.rpcClient.Move(from, to, btcAmount)
-}
-
-func (client *Client) AddRoutes(engine *gin.Engine) {
-	return
 }
 
 // ListUnspentMin
