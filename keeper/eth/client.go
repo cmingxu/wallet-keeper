@@ -23,21 +23,14 @@ import (
 
 const PASSWORD = "password"
 
-// At this inteval will refresh accountBalanceMap,
-// If balance changed, event will send out to any receiver.
-var AccountBalanceWatcherInterval = time.Second * 20
-
-var ErrNotValidAccountFile = errors.New("not valid account file")
-var ErrNotDirectory = errors.New("not valid directory")
-
-// address is not valid
-var ErrInvalidAddress = errors.New("invalid address")
-
-type EthAccount struct {
-	account string  `json:"account"`
-	address string  `json:"address"`
-	balance float64 `json:"balance"`
-}
+var (
+	// account file not valid
+	ErrNotValidAccountFile = errors.New("not valid account file")
+	// target is not valid directory
+	ErrNotDirectory = errors.New("not valid directory")
+	// address is not valid
+	ErrInvalidAddress = errors.New("invalid address")
+)
 
 type Client struct {
 	l *log.Logger
