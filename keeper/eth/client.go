@@ -263,13 +263,11 @@ func (client *Client) SendToAddress(address string, amount float64) error {
 
 // TODO check validity of account and have sufficent balance
 func (client *Client) SendFrom(account, hexToAddress string, amount float64) error {
-	hexFromAddress := account
+	var hexFromAddress string = ""
 	if !common.IsHexAddress(account) {
-		hexFromAddress, found := client.accountAddressMap[account]
-		_ = hexFromAddress
-		if !found {
-			return ErrInvalidAddress
-		}
+		hexFromAddress = client.accountAddressMap[account]
+	} else {
+		hexFromAddress = account
 	}
 
 	if !common.IsHexAddress(hexFromAddress) {

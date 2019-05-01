@@ -8,5 +8,8 @@ RELEASE_IMAGE=wallet_keeper:${VERSION}
 CONTAINER_NAME=wallet_keeper_${VERSION}
 
 
-docker run -it  --publish 127.0.0.1:8000:8000/tcp --name $CONTAINER_NAME $RELEASE_IMAGE
+docker run -it  \
+  --publish 127.0.0.1:8000:8000/tcp \
+  --volume /data/wallet-keeper/eth-accounts.json:/data/eth-accounts.json \
+  --name $CONTAINER_NAME $RELEASE_IMAGE
 

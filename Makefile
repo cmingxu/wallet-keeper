@@ -10,7 +10,7 @@ BUILD_DIR=./bin
 all: build
 	
 build:
-	${GOBUILD}  -o ${BUILD_DIR}/wallet-keeper-${VERSION} ./cmd/*.go
+	${GOBUILD}  -o ${BUILD_DIR}/wallet-keeper ./cmd/*.go
 	# ${CROSS_GOBUILD}  -o ${BUILD_DIR}/jex-linux-${VERSION} ./cmd/*.go
 
 install: binaries
