@@ -50,19 +50,16 @@ type ApiServer struct {
 //TODO valid host is valid
 func (api *ApiServer) InitBtcClient(host, user, pass, logDir string) (err error) {
 	api.btcKeeper, err = btc.NewClient(host, user, pass, logDir)
-	api.btcKeeper.AddRoutes(api.engine)
 	return err
 }
 
 func (api *ApiServer) InitUsdtClient(host, user, pass, logDir string, propertyId int64) (err error) {
 	api.usdtKeeper, err = usdt.NewClient(host, user, pass, logDir, propertyId)
-	api.usdtKeeper.AddRoutes(api.engine)
 	return err
 }
 
 func (api *ApiServer) InitEthClient(host, walletDir, accountPath, logDir string) (err error) {
 	api.ethKeeper, err = eth.NewClient(host, walletDir, accountPath, logDir)
-	api.ethKeeper.AddRoutes(api.engine)
 	return err
 }
 

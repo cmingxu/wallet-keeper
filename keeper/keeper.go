@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/btcsuite/btcd/btcjson"
-	"github.com/gin-gonic/gin"
 )
 
 var ErrAccountNotFound = errors.New("error account not found")
@@ -63,7 +62,4 @@ type Keeper interface {
 
 	// Move from one account to another under same wallet
 	Move(from, to string, amount float64) (bool, error)
-
-	// Expose HTTP API
-	AddRoutes(engine *gin.Engine)
 }

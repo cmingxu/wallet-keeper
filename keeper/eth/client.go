@@ -4,15 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/cmingxu/wallet-keeper/keeper"
-	"github.com/cmingxu/wallet-keeper/notifier"
 
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/ethereum/go-ethereum/accounts"
@@ -21,28 +18,19 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
 const PASSWORD = "password"
 
-// At this inteval will refresh accountBalanceMap,
-// If balance changed, event will send out to any receiver.
-var AccountBalanceWatcherInterval = time.Second * 20
-
-var ErrNotValidAccountFile = errors.New("not valid account file")
-var ErrNotDirectory = errors.New("not valid directory")
-
-// address is not valid
-var ErrInvalidAddress = errors.New("invalid address")
-
-type EthAccount struct {
-	account string  `json:"account"`
-	address string  `json:"address"`
-	balance float64 `json:"balance"`
-}
+var (
+	// account file not valid
+	ErrNotValidAccountFile = errors.New("not valid account file")
+	// target is not valid directory
+	ErrNotDirectory = errors.New("not valid directory")
+	// address is not valid
+	ErrInvalidAddress = errors.New("invalid address")
+)
 
 type Client struct {
 	l *log.Logger
@@ -63,12 +51,6 @@ type Client struct {
 	// only with this map we can provide services for the upstream services.
 	accountAddressMap  map[string]string
 	accountAddressLock sync.Mutex
-
-	// account/balance map
-	accountBalanceMap  map[string]float64
-	accountBalanceLock sync.Mutex
-
-	noti *notifier.Notifier
 }
 
 func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error) {
@@ -77,10 +59,6 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 		accountFilePath:    accountFilePath,
 		accountAddressMap:  make(map[string]string),
 		accountAddressLock: sync.Mutex{},
-
-		accountBalanceMap:  make(map[string]float64),
-		accountBalanceLock: sync.Mutex{},
-		noti:               notifier.New(),
 	}
 
 	// accountAddressMap initialization
@@ -126,17 +104,6 @@ func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error)
 		Out:       logFile,
 		Formatter: new(log.JSONFormatter),
 	}
-
-	for account, address := range client.accountAddressMap {
-		balance, err := client.getBalance(address)
-		if err != nil {
-			log.Debug(err)
-		}
-		client.accountBalanceMap[account] = balance
-	}
-
-	go client.noti.Start()
-	go client.accountBalanceWatcher()
 
 	return client, nil
 }
@@ -187,10 +154,6 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 	client.accountAddressLock.Lock()
 	client.accountAddressMap[account] = acc.Address.Hex()
 	client.accountAddressLock.Unlock()
-
-	client.accountBalanceLock.Lock()
-	client.accountBalanceMap[account] = 0
-	client.accountBalanceLock.Unlock()
 
 	err = client.persistAccountMap()
 	if err != nil {
@@ -339,48 +302,6 @@ func (client *Client) Move(from, to string, amount float64) (bool, error) {
 	return true, nil
 }
 
-func (client *Client) AddRoutes(engine *gin.Engine) {
-	notificationGroup := engine.Group("/notifiers")
-	// list all avaliable receivers
-	notificationGroup.GET("/list", func(c *gin.Context) {
-		c.JSON(http.StatusOK, client.noti.ListReceivers())
-	})
-
-	// install new receiver
-	//  endpoint - http://callbackdomain.com/foo/bar
-	//  retryCount - 1
-	//  eventTypes - eth_balance_change_event
-	notificationGroup.POST("/install", func(c *gin.Context) {
-		var installParams struct {
-			RetryCount uint   `json:"retryCount"`
-			Endpoint   string `json:"endpoint"`
-			EventTypes string `json:"eventTypes"`
-		}
-
-		if c.ShouldBind(&installParams) == nil {
-			receiver := notifier.NewReceiver(
-				installParams.Endpoint,
-				strings.SplitN(installParams.EventTypes, ",", -1),
-				installParams.RetryCount,
-			)
-
-			uuidIns, _ := uuid.NewUUID()
-			client.noti.InstallReceiver(uuidIns.String(), receiver)
-		}
-	})
-
-	notificationGroup.POST("/uninstall", func(c *gin.Context) {
-		var uninstallParams struct {
-			Name string `json:"name"`
-		}
-
-		if c.ShouldBind(&uninstallParams) == nil {
-			client.noti.UninstallReceiver(uninstallParams.Name)
-		}
-	})
-	return
-}
-
 // persistAccountMap write `accountAddressMap` into file `client.accountAddressMap`,
 // `accountAddressMap` will persist into file with json format,
 //
@@ -431,44 +352,4 @@ func (client *Client) getBalance(address string) (float64, error) {
 
 	float64Value, _ := weiToEther(balance.ToInt()).Float64()
 	return float64Value, nil
-}
-
-func (client *Client) accountBalanceWatcher() {
-	ticker := time.NewTicker(AccountBalanceWatcherInterval)
-
-	refreshFunc := func() {
-		for account, balance := range client.accountBalanceMap {
-			address, found := client.accountAddressMap[account]
-			if found {
-				newBalance, err := client.getBalance(address)
-				if err != nil {
-					log.Println(err)
-				}
-
-				// balance updated
-				if balance != newBalance {
-					event := notifier.NewEthBalanceChangeEvent(map[string]interface{}{
-						"account":    account,
-						"address":    address,
-						"newBalance": newBalance,
-						"balance":    balance,
-					})
-					client.noti.EventChan() <- event
-
-					client.accountBalanceLock.Lock()
-					client.accountBalanceMap[account] = newBalance
-					client.accountBalanceLock.Unlock()
-				}
-			}
-		}
-	}
-
-	refreshFunc()
-
-	for {
-		select {
-		case <-ticker.C:
-			refreshFunc()
-		}
-	}
 }
