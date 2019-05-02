@@ -8,7 +8,7 @@ simplified access to BTC/OmniProtocol/ETH backends with unified APIs, help crypt
 
 **Notice**: currently under *heavy development*.
 
-**Current Veresion**: 0.2.0
+[![version](https://img.shields.io/badge/version-0.2.0-yellow.svg)](https://semver.org)
 
 ## Run
 ```bash
@@ -27,15 +27,16 @@ $ ./scripts/run_wallet_keeper_docker.sh
 ## How to config
 
 ```bash
-$ ./bin/wallet-keeper-0.0.1
+$ ./bin/wallet-keeper 
+use stdout as default log output
 NAME:
-   wallet-keeper-0.0.1 - A new cli application
+   Universal BTC/USDT wallet gateway - A new cli application
 
 USAGE:
-   wallet-keeper-0.0.1 [global options] command [command options] [arguments...]
+   wallet-keeper [global options] command [command options] [arguments...]
 
 VERSION:
-   0.0.0
+   0.2.0
 
 COMMANDS:
      run, r   serve api gateway
@@ -43,19 +44,18 @@ COMMANDS:
 
 GLOBAL OPTIONS:
    --log-level value  default log level (default: "info") [$LOG_LEVEL]
-   --log-path value    [$LOG_PATH]
+   --log-dir value     [$LOG_DIR]
    --env value        (default: "production") [$ENV]
    --help, -h         show help
    --version, -v      print the version
 
-
-$> ./bin/wallet-keeper-0.1.0 run --help
+$ ./bin/wallet-keeper run --help
 use stdout as default log output
 NAME:
-   wallet-keeper-0.1.0 run - serve api gateway
+   wallet-keeper run - serve api gateway
 
 USAGE:
-   wallet-keeper-0.1.0 run [command options] [arguments...]
+   wallet-keeper run [command options] [arguments...]
 
 OPTIONS:
    --http-listen-addr value  http address of web application (default: "0.0.0.0:8000") [$HTTP_LISTEN_ADDR]
@@ -66,6 +66,10 @@ OPTIONS:
    --usdt-rpc-user value     (default: "foo") [$USDT_RPCUSER]
    --usdt-rpc-pass value     password can be generate through scripts/rcpauth.py (default: "usdtpass") [$USDT_PRCPASS]
    --usdt-property-id value  property id of usdt, default is 2 (default: 2) [$USDT_PROPERTY_ID]
+   --eth-rpc-addr value      (default: "http://192.168.0.101:8545") [$ETH_RPCADDR]
+   --eth-wallet-dir value    (default: "/data/eth-wallet") [$ETH_WALLET_DIR]
+   --eth-account-path value  (default: "/data/eth-accounts.json") [$ETH_ACCOUNT_PATH]
+   --backends value          (default: "btc,usdt,eth") [$BACKENDS]
 ```
 
 
