@@ -1,6 +1,10 @@
-**Wallet-Keeper** simplified access to BTC/OmniProtocol/ETH backends with unified APIs, help cryptocurrency developers focus their bussiness logic instead of RPC details of different backend.
+# **Wallet-Keeper**
 
-**Current Veresion**: **0.1.5**
+simplified access to BTC/OmniProtocol/ETH backends with unified APIs, help cryptocurrency developers focus their bussiness logic instead of RPC details of different backend.
+
+**Notice**: currently under *heavy development*. 
+
+**Current Veresion**: 0.2.0
 
 ## Run
 ```bash
