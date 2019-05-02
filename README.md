@@ -1,8 +1,12 @@
-# **Wallet-Keeper**
+# **Wallet Keeper**
+
+<img src="https://github.com/858chain/wallet-keeper/raw/master/logo/logo.png" width="100">
+
+----
 
 simplified access to BTC/OmniProtocol/ETH backends with unified APIs, help cryptocurrency developers focus their bussiness logic instead of RPC details of different backend.
 
-**Notice**: currently under *heavy development*. 
+**Notice**: currently under *heavy development*.
 
 **Current Veresion**: 0.2.0
 
