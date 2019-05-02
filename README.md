@@ -1,16 +1,18 @@
-Wallet-Keeper simplified access to BTC/OmniProtocol/ETH backends with unified APIs, help cryptocurrency developers focus their bussiness logic instead of RPC details of different backend.
+**Wallet-Keeper** simplified access to BTC/OmniProtocol/ETH backends with unified APIs, help cryptocurrency developers focus their bussiness logic instead of RPC details of different backend.
+
+**Current Veresion**: **0.1.5**
 
 ## Run
-```
-	make
-	./bin/wallet-keeper --log-level debug --log-dir=/tmp/  \
-  run --http-listen-addr=http://0.0.0.0:8080
+```bash
+$ make
+$ ./bin/wallet-keeper --log-level debug --log-dir=/tmp/  \
+run --http-listen-addr=http://0.0.0.0:8080
 ```
 
-## Run In Docker(need connectivity golang.org/x/XXXX in docker build)
+## Docker Run
 ```bash
-./scripts/build.sh
-./scripts/run_wallet_keeper_docker.sh
+$ ./scripts/build.sh
+$ ./scripts/run_wallet_keeper_docker.sh
 ```
 
 
