@@ -1,6 +1,6 @@
 # **Wallet Keeper**
 
-<img src="https://github.com/858chain/wallet-keeper/raw/master/logo/logo.png" width="100">
+<img src="./logo/logo.png" width="100">
 
 ----
 
