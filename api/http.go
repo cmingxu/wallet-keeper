@@ -58,8 +58,8 @@ func (api *ApiServer) InitUsdtClient(host, user, pass, logDir string, propertyId
 	return err
 }
 
-func (api *ApiServer) InitEthClient(host, walletDir, accountPath, logDir string) (err error) {
-	api.ethKeeper, err = eth.NewClient(host, walletDir, accountPath, logDir)
+func (api *ApiServer) InitEthClient(host, walletDir, password, accountPath, logDir string) (err error) {
+	api.ethKeeper, err = eth.NewClient(host, walletDir, password, accountPath, logDir)
 	return err
 }
 

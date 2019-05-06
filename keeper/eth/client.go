@@ -21,8 +21,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const PASSWORD = "password"
-
 var (
 	// account file not valid
 	ErrNotValidAccountFile = errors.New("not valid account file")
@@ -41,6 +39,7 @@ type Client struct {
 
 	// fs directory where to store wallet
 	walletDir string
+	password  string
 
 	// keystore
 	store *keystore.KeyStore
@@ -53,9 +52,10 @@ type Client struct {
 	accountAddressLock sync.Mutex
 }
 
-func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error) {
+func NewClient(host, walletDir, accountFilePath, password, logDir string) (*Client, error) {
 	client := &Client{
 		walletDir:          walletDir,
+		password:           password,
 		accountFilePath:    accountFilePath,
 		accountAddressMap:  make(map[string]string),
 		accountAddressLock: sync.Mutex{},
@@ -146,7 +146,7 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 		return keeper.Account{}, keeper.ErrAccountExists
 	}
 
-	acc, err := client.store.NewAccount(PASSWORD)
+	acc, err := client.store.NewAccount(client.password)
 	if err != nil {
 		return keeper.Account{}, err
 	}
@@ -266,7 +266,7 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, []byte{})
 	accountStore := accounts.Account{Address: fromAddress}
-	err = client.store.TimedUnlock(accountStore, PASSWORD, time.Duration(time.Second*10))
+	err = client.store.TimedUnlock(accountStore, client.password, time.Duration(time.Second*10))
 	if err != nil {
 		log.Error(err)
 		return err
