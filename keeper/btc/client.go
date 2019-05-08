@@ -183,7 +183,7 @@ func (client *Client) ListAccountsMinConf(minConf int) (map[string]float64, erro
 // SendToAddress
 func (client *Client) SendToAddress(address string, amount float64) (string, error) {
 	client.l.Infof("[SendToAddress] to address %s: %f", address, amount)
-	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
+	decoded, err := decodeAddress(address, chaincfg.MainNetParams)
 	if err != nil {
 		return "", err
 	}
