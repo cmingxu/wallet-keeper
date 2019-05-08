@@ -189,24 +189,23 @@ func (client *Client) ListAccountsMinConf(minConf int) (map[string]float64, erro
 
 // SendToAddress ...
 // USDT RPC don't need this Stub func
-func (client *Client) SendToAddress(address string, amount float64) error {
-	client.l.Infof("[SendToAddress] to address %s: %f", address, amount)
-	return nil
+func (client *Client) SendToAddress(address string, amount float64) (string, error) {
+	return "", keeper.ErrNotSupport
 }
 
 //SendFrom ...omni_funded_send
-func (client *Client) SendFrom(account, address string, amount float64) error {
+func (client *Client) SendFrom(account, address string, amount float64) (string, error) {
 	client.l.Infof("[SendFrom] from account %s to address %s with amount %f ", account, address, amount)
 	fromAddr, err := client.rpcClient.GetAccountAddress(account)
 	if err != nil {
 		client.l.Errorf("[SendFrom] go error: %s", err)
-		return err
+		return "", err
 	}
 
 	hash, _ := client.rpcClient.OmniFoundedSend(fromAddr, address, client.propertyId, floatToString(amount), fromAddr)
 	client.l.Infof("[SendFrom] from account %s to address %s with amount %f, result hash %s ", fromAddr, address, amount, hash)
 
-	return nil
+	return hash, nil
 }
 
 // Move - omni_funded_send

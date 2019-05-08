@@ -220,12 +220,12 @@ func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) 
 }
 
 // SendToAddress
-func (client *Client) SendToAddress(address string, amount float64) error {
-	return keeper.ErrNotSupport
+func (client *Client) SendToAddress(address string, amount float64) (string, error) {
+	return "", keeper.ErrNotSupport
 }
 
 // TODO check validity of account and have sufficent balance
-func (client *Client) SendFrom(account, hexToAddress string, amount float64) error {
+func (client *Client) SendFrom(account, hexToAddress string, amount float64) (string, error) {
 	var hexFromAddress string = ""
 	if !common.IsHexAddress(account) {
 		hexFromAddress = client.accountAddressMap[account]
@@ -234,11 +234,11 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 	}
 
 	if !common.IsHexAddress(hexFromAddress) {
-		return ErrInvalidAddress
+		return "", ErrInvalidAddress
 	}
 
 	if !common.IsHexAddress(hexToAddress) {
-		return ErrInvalidAddress
+		return "", ErrInvalidAddress
 	}
 
 	fromAddress := common.HexToAddress(hexFromAddress)
@@ -247,7 +247,7 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	value := etherToWei(amount)
@@ -255,13 +255,13 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, []byte{})
@@ -269,22 +269,22 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 	err = client.store.TimedUnlock(accountStore, client.password, time.Duration(time.Second*10))
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	signedTx, err := client.store.SignTx(accountStore, tx, chainID)
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	err = client.SendTransaction(context.Background(), signedTx)
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return signedTx.Hash().Hex(), nil
 }
 
 // ListUnspentMin
@@ -294,7 +294,7 @@ func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, 
 
 // Move
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
-	err := client.SendFrom(from, to, amount)
+	_, err := client.SendFrom(from, to, amount)
 	if err != nil {
 		return false, err
 	}

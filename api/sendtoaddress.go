@@ -34,11 +34,11 @@ func (api *ApiServer) SendToAddress(c *gin.Context) {
 		return
 	}
 
-	err = keeper.SendToAddress(address, amount)
+	hash, err := keeper.SendToAddress(address, amount)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, R(fmt.Sprint(err)))
 	} else {
-		c.JSON(http.StatusOK, R(address))
+		c.JSON(http.StatusOK, R(gin.H{"address": address, "txid": hash}))
 	}
 }
