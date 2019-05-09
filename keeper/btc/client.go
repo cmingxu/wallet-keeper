@@ -205,7 +205,7 @@ func (client *Client) SendToAddress(address string, amount float64) (string, err
 // TODO check validity of account and have sufficent balance
 func (client *Client) SendFrom(account, address string, amount float64) (string, error) {
 	client.l.Infof("[SendFrom] from account %s to address %s with amount %f ", account, address, amount)
-	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
+	decoded, err := decodeAddress(address, chaincfg.MainNetParams)
 	if err != nil {
 		return "", err
 	}
