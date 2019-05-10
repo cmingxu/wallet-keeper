@@ -30,3 +30,6 @@ https://www.ethereum.org/token
 
 # Ominilayer RPC 
 https://github.com/OmniLayer/omnicore/blob/master/src/omnicore/doc/rpc-api.md
+
+# address decode param
+https://github.com/btcsuite/btcd/blob/master/chaincfg/params.go

@@ -181,47 +181,47 @@ func (client *Client) ListAccountsMinConf(minConf int) (map[string]float64, erro
 }
 
 // SendToAddress
-func (client *Client) SendToAddress(address string, amount float64) error {
+func (client *Client) SendToAddress(address string, amount float64) (string, error) {
 	client.l.Infof("[SendToAddress] to address %s: %f", address, amount)
-	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
+	decoded, err := decodeAddress(address, chaincfg.MainNetParams)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	btcAmount, err := convertToBtcAmount(amount)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	hash, err := client.rpcClient.SendToAddressComment(decoded, btcAmount, "", "")
 	if err != nil {
-		return err
+		return "", err
 	}
 	client.l.Infof("[SendToAddress] to address %s: %f, hash is %s", address, amount, hash)
 
-	return nil
+	return hash.String(), nil
 }
 
 // TODO check validity of account and have sufficent balance
-func (client *Client) SendFrom(account, address string, amount float64) error {
+func (client *Client) SendFrom(account, address string, amount float64) (string, error) {
 	client.l.Infof("[SendFrom] from account %s to address %s with amount %f ", account, address, amount)
-	decoded, err := decodeAddress(address, chaincfg.TestNet3Params)
+	decoded, err := decodeAddress(address, chaincfg.MainNetParams)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	btcAmount, err := convertToBtcAmount(amount)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	hash, err := client.rpcClient.SendFrom(account, decoded, btcAmount)
 	if err != nil {
-		return err
+		return "", err
 	}
 	client.l.Infof("[SendFrom] from account %s to address %s with amount %f, result hash %s ", account, address, amount, hash)
 
-	return nil
+	return hash.String(), nil
 }
 
 // Move

@@ -24,7 +24,7 @@ func (api *ApiServer) GetAccountInfo(c *gin.Context) {
 
 	confarg, found := c.GetQuery("minconf")
 	if !found {
-		confarg = "1"
+		confarg = "6"
 	}
 
 	conf, err := strconv.ParseUint(confarg, 10, 32)

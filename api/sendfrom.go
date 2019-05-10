@@ -35,11 +35,11 @@ func (api *ApiServer) SendFrom(c *gin.Context) {
 		return
 	}
 
-	err = keeper.SendFrom(from, address, amount)
+	hash, err := keeper.SendFrom(from, address, amount)
 	if err != nil {
 		log.Error(err)
 		c.JSON(http.StatusBadRequest, R(fmt.Sprint(err)))
 	} else {
-		c.JSON(http.StatusOK, R(address))
+		c.JSON(http.StatusOK, R(gin.H{"address": address, "txid": hash}))
 	}
 }

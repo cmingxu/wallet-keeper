@@ -31,6 +31,7 @@ var gateCmd = cli.Command{
 		usdtPropertyIdFlag,
 		ethRpcAddrFlag,
 		ethWalletDirFlag,
+		ethAccountPasswordFlag,
 		ethAccountFlag,
 		backendsFlag,
 	},
@@ -75,6 +76,7 @@ var gateCmd = cli.Command{
 			err = apiServer.InitEthClient(
 				c.String("eth-rpc-addr"), // host
 				c.String("eth-wallet-dir"),
+				c.String("eth-account-password"),
 				c.String("eth-account-path"),
 				c.GlobalString("log-dir"), // logDir
 			)

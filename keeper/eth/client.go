@@ -21,8 +21,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const PASSWORD = "password"
-
 var (
 	// account file not valid
 	ErrNotValidAccountFile = errors.New("not valid account file")
@@ -41,6 +39,7 @@ type Client struct {
 
 	// fs directory where to store wallet
 	walletDir string
+	password  string
 
 	// keystore
 	store *keystore.KeyStore
@@ -53,9 +52,10 @@ type Client struct {
 	accountAddressLock sync.Mutex
 }
 
-func NewClient(host, walletDir, accountFilePath, logDir string) (*Client, error) {
+func NewClient(host, walletDir, accountFilePath, password, logDir string) (*Client, error) {
 	client := &Client{
 		walletDir:          walletDir,
+		password:           password,
 		accountFilePath:    accountFilePath,
 		accountAddressMap:  make(map[string]string),
 		accountAddressLock: sync.Mutex{},
@@ -146,7 +146,7 @@ func (client *Client) CreateAccount(account string) (keeper.Account, error) {
 		return keeper.Account{}, keeper.ErrAccountExists
 	}
 
-	acc, err := client.store.NewAccount(PASSWORD)
+	acc, err := client.store.NewAccount(client.password)
 	if err != nil {
 		return keeper.Account{}, err
 	}
@@ -220,12 +220,12 @@ func (client *Client) ListAccountsMinConf(conf int) (map[string]float64, error) 
 }
 
 // SendToAddress
-func (client *Client) SendToAddress(address string, amount float64) error {
-	return keeper.ErrNotSupport
+func (client *Client) SendToAddress(address string, amount float64) (string, error) {
+	return "", keeper.ErrNotSupport
 }
 
 // TODO check validity of account and have sufficent balance
-func (client *Client) SendFrom(account, hexToAddress string, amount float64) error {
+func (client *Client) SendFrom(account, hexToAddress string, amount float64) (string, error) {
 	var hexFromAddress string = ""
 	if !common.IsHexAddress(account) {
 		hexFromAddress = client.accountAddressMap[account]
@@ -234,11 +234,11 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 	}
 
 	if !common.IsHexAddress(hexFromAddress) {
-		return ErrInvalidAddress
+		return "", ErrInvalidAddress
 	}
 
 	if !common.IsHexAddress(hexToAddress) {
-		return ErrInvalidAddress
+		return "", ErrInvalidAddress
 	}
 
 	fromAddress := common.HexToAddress(hexFromAddress)
@@ -247,7 +247,7 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	value := etherToWei(amount)
@@ -255,36 +255,36 @@ func (client *Client) SendFrom(account, hexToAddress string, amount float64) err
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, []byte{})
 	accountStore := accounts.Account{Address: fromAddress}
-	err = client.store.TimedUnlock(accountStore, PASSWORD, time.Duration(time.Second*10))
+	err = client.store.TimedUnlock(accountStore, client.password, time.Duration(time.Second*10))
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	signedTx, err := client.store.SignTx(accountStore, tx, chainID)
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
 	err = client.SendTransaction(context.Background(), signedTx)
 	if err != nil {
 		log.Error(err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return signedTx.Hash().Hex(), nil
 }
 
 // ListUnspentMin
@@ -294,7 +294,7 @@ func (client *Client) ListUnspentMin(minConf int) ([]btcjson.ListUnspentResult, 
 
 // Move
 func (client *Client) Move(from, to string, amount float64) (bool, error) {
-	err := client.SendFrom(from, to, amount)
+	_, err := client.SendFrom(from, to, amount)
 	if err != nil {
 		return false, err
 	}
